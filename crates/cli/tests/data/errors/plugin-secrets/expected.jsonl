@@ -1,0 +1,5 @@
+{"file":"deck.toml","line":5,"column":8,"end_line":5,"end_column":27,"severity":"error","code":"plugin::table","message":"plugins/voice.lua: the plugin needs the secret `token`: add it to `[plugins.voice.secrets]`","help":null,"related":[]}
+{"file":"deck.toml","line":9,"column":1,"end_line":9,"end_column":6,"severity":"warning","code":"plugin::unused-secret","message":"plugins/voice.lua: the plugin does not use the secret `spare`","help":null,"related":[]}
+{"file":"deck.toml","line":12,"column":8,"end_line":12,"end_column":27,"severity":"warning","code":"plugin::unused-access","message":"plugins/quiet.lua: the plugin has no `generate` function, so it cannot use `http` or `secrets`","help":null,"related":[]}
+{"file":"deck.toml","line":12,"column":8,"end_line":12,"end_column":27,"severity":"error","code":"plugin::table","message":"plugins/quiet.lua: `secrets` lists `token` twice","help":null,"related":[]}
+{"file":"deck.toml","line":12,"column":8,"end_line":12,"end_column":27,"severity":"error","code":"plugin::table","message":"plugins/quiet.lua: the plugin needs the secret `token`: add it to `[plugins.quiet.secrets]`","help":null,"related":[]}

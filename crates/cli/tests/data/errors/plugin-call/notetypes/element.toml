@@ -1,0 +1,27 @@
+name = "Element"
+
+[schema]
+symbol = { type = "string", required = true }
+
+[fields.symbol]
+name = "Symbol"
+value = "⚛️ 🧪: {{ entry.symbol | crash }}"
+
+[fields.handle]
+name = "Handle"
+value = "{{ entry.symbol | handle }}"
+
+[fields.spin]
+name = "Spin"
+value = "{{ entry.symbol | spin }}"
+
+[cards.recognition]
+name = "Recognition"
+front = "cards/front.html"
+back = "cards/front.html"
+
+[cards.production]
+name = "Production"
+front = "cards/front.html"
+back = "cards/front.html"
+when = "never(entry.symbol)"

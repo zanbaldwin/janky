@@ -1,0 +1,12 @@
+defaults:
+  tags: ['periodic-table']
+entries:
+  - id: 'li'
+    symbol: 'Li'
+    name: 'lithium'
+    examples:
+      - { formula: 'LiCl 🧂', name: 'lithium chloride' }
+  - id: 'alkali-metals'
+    type: 'group'
+    group: '1 ⚛️'
+    property: 'reactive (with water)'

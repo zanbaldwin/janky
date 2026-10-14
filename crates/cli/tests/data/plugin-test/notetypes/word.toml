@@ -1,0 +1,28 @@
+name = "Word"
+plugins = ["word.lua"]
+
+[schema]
+symbol = { type = "string", required = true }
+name = { type = "string", required = true }
+notes = { type = "markdown" }
+
+[fields.symbol]
+name = "Symbol"
+value = "{{ entry.symbol | shout }} {{ 'a' | shout }}"
+
+[fields.name]
+name = "Name"
+value = "{{ entry.name | wrap('b') }}"
+
+[fields.notes]
+name = "Notes"
+value = "{{ entry.notes | markdown | length }}"
+
+[fields.pair]
+name = "Pair"
+value = "{{ pair(entry.symbol, entry.name).second }} {{ pair(entry.symbol, entry.name).both | join('/') }}"
+
+[cards.recognition]
+name = "Recognition"
+front = "cards/front.html"
+back = "cards/front.html"

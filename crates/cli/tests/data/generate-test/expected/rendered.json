@@ -1,0 +1,102 @@
+{
+  "notetypes": {
+    "word": {
+      "css": "",
+      "cards": {
+        "recognition": {
+          "front": "{{Symbol}}\n",
+          "back": "{{Symbol}}\n"
+        }
+      }
+    }
+  },
+  "notes": [
+    {
+      "id": "mercury",
+      "notetype": "word",
+      "fields": {
+        "symbol": "☿",
+        "audio": "[sound:708a9f545b75aa8608c7dfb648549c38.ogg]",
+        "again": "708a9f545b75aa8608c7dfb648549c38.ogg generated",
+        "plain": "[]"
+      }
+    },
+    {
+      "id": "gold",
+      "notetype": "word",
+      "fields": {
+        "symbol": "🜚",
+        "audio": "[sound:2e96b43df1002c9e5faec396e4bbb720.ogg]",
+        "again": "2e96b43df1002c9e5faec396e4bbb720.ogg generated",
+        "plain": "[]"
+      }
+    },
+    {
+      "id": "mercury-again",
+      "notetype": "word",
+      "fields": {
+        "symbol": "☿",
+        "audio": "[sound:708a9f545b75aa8608c7dfb648549c38.ogg]",
+        "again": "708a9f545b75aa8608c7dfb648549c38.ogg generated",
+        "plain": "[]"
+      }
+    }
+  ],
+  "media": [],
+  "jobs": [
+    {
+      "instance": "voice",
+      "kind": "media",
+      "input": "☿",
+      "hash": "708a9f545b75aa8608c7dfb648549c38",
+      "key": [
+        "Marie",
+        1
+      ],
+      "ext": "ogg",
+      "units": 1,
+      "unit": "characters",
+      "file": "708a9f545b75aa8608c7dfb648549c38.ogg",
+      "exists": false
+    },
+    {
+      "instance": "plain",
+      "kind": "media",
+      "input": "☿",
+      "hash": "8f86fc28ac22e9161ae175e9b780e27f",
+      "key": {},
+      "ext": null,
+      "units": null,
+      "unit": null,
+      "file": "",
+      "exists": false
+    },
+    {
+      "instance": "voice",
+      "kind": "media",
+      "input": "🜚",
+      "hash": "2e96b43df1002c9e5faec396e4bbb720",
+      "key": [
+        "Marie",
+        1
+      ],
+      "ext": "ogg",
+      "units": 1,
+      "unit": "characters",
+      "file": "2e96b43df1002c9e5faec396e4bbb720.ogg",
+      "exists": false
+    },
+    {
+      "instance": "plain",
+      "kind": "media",
+      "input": "🜚",
+      "hash": "4b5b4305328e5c03eb3f129dfc1b4014",
+      "key": {},
+      "ext": null,
+      "units": null,
+      "unit": null,
+      "file": "",
+      "exists": false
+    }
+  ]
+}

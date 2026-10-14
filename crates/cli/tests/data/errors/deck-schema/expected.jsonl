@@ -1,0 +1,9 @@
+{"file":"deck.toml","line":1,"column":1,"end_line":1,"end_column":7,"severity":"error","code":"config::required","message":"missing key `name` in `deck`","help":null,"related":[]}
+{"file":"deck.toml","line":2,"column":1,"end_line":2,"end_column":5,"severity":"error","code":"config::unknown-key","message":"unknown key `deck.nmae`","help":null,"related":[]}
+{"file":"deck.toml","line":3,"column":10,"end_line":3,"end_column":11,"severity":"error","code":"config::type","message":"`deck.preset`: 3 is not of type \"string\"","help":null,"related":[]}
+{"file":"deck.toml","line":4,"column":11,"end_line":4,"end_column":27,"severity":"error","code":"config::type","message":"`deck.content`: \"content/*.yaml\" is not of type \"array\"","help":null,"related":[]}
+{"file":"deck.toml","line":11,"column":21,"end_line":11,"end_column":24,"severity":"error","code":"config::maximum","message":"`presets.metals.desired_retention`: 1.5 is greater than the maximum of 0.99","help":null,"related":[]}
+{"file":"deck.toml","line":12,"column":25,"end_line":12,"end_column":32,"severity":"error","code":"config::pattern","message":"`presets.metals.learning_steps[1]`: \"10 ⏱️\" does not match \"^[0-9]+(\\.[0-9]+)?[smhd]$\"","help":null,"related":[]}
+{"file":"deck.toml","line":13,"column":21,"end_line":13,"end_column":30,"severity":"error","code":"config::enum","message":"`presets.metals.review_sort_order`: \"by-deck\" is not one of \"due\", \"due-then-deck\" or 11 other candidates","help":null,"related":[]}
+{"file":"deck.toml","line":14,"column":1,"end_line":14,"end_column":14,"severity":"error","code":"config::unknown-key","message":"unknown key `presets.metals.starting_ease`","help":null,"related":[]}
+{"file":"deck.toml","line":15,"column":15,"end_line":15,"end_column":17,"severity":"error","code":"config::minimum","message":"`presets.metals.new_per_day`: -1 is less than the minimum of 0","help":null,"related":[]}

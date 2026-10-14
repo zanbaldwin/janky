@@ -1,0 +1,53 @@
+[deck]
+name = "Periodic Table"
+output = ".janky/build/periodic.apkg"
+media_dirs = ["media"]
+preset = "parent"
+
+[deck.children.elements]
+name = "0 Elements"
+preset = "elements"
+content = ["content/periods/*.yaml", "content/periods/*.json"]
+[deck.children.groups]
+name = "1 Groups 🧪"
+preset = "elements"
+content = ["content/groups/*.toml"]
+
+[presets.parent]
+new_per_day = 25
+reviews_per_day = 300
+new_gather_order = "deck"
+review_sort_order = "deck-then-due"
+[presets.elements]
+name = "Element drills"
+new_per_day = 20
+desired_retention = 0.92
+learning_steps = ["1m", "10m"]
+maximum_interval = "1y"
+
+[plugins.voice]
+path = "plugins/elevenlabs.lua"
+[plugins.voice.http]
+allowed_hosts = ["api.elevenlabs.io"]
+max_concurrency = 2
+[plugins.voice.secrets]
+api_key = { env = "ELEVENLABS_API_KEY" }
+[plugins.voice.variables]
+# "George", a stock British English voice.
+voice_id = "JBFqnCBsd6RMkjVDRZzb"
+model = "eleven_v4"
+language = "en"
+output_format = "opus_48000_64"
+voice_settings = { stability = 0.35, similarity_boost = 0.75 }
+
+[plugins.pubchem]
+path = "plugins/pubchem.lua"
+[plugins.pubchem.http]
+allowed_hosts = ["pubchem.ncbi.nlm.nih.gov"]
+
+[notetypes.element]
+path = "notetypes/element"
+alias = ["metal", "compound"]
+default = true
+[notetypes.group]
+path = "notetypes/group.toml"

@@ -1,0 +1,11 @@
+[deck]
+name = "Same id"
+
+[plugins.one]
+path = "plugins/one.lua"
+
+[plugins.two]
+path = "plugins/two.lua"
+
+[plugins.again]
+path = "plugins/one.lua"

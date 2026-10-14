@@ -1,0 +1,7 @@
+[deck]
+name = "Publish"
+
+[publish]
+endpoint = "http://anki.example.org/"
+username = "example"
+password = { env = "JANKY_TEST_SYNC_PASSWORD" }

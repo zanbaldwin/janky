@@ -1,0 +1,39 @@
+[defaults]
+tags = ['periodic-table']
+
+[[entries]]
+id = 'li'
+symbol = 'Li 🔋'
+name = 42
+
+[[entries]]
+id = 'na'
+name = 'sodium'
+
+[[entries]]
+id = 'k'
+symbol = 'K'
+name = 'potassium'
+nmae = 'typo'
+
+[[entries]]
+id = 'cs'
+symbol = 'Cs'
+name = 'caesium'
+compound = { formula = 'CsCl 🧂', name = 7 }
+examples = [
+  { formula = 'CsF ⚛️', name = 'caesium fluoride' },
+  { formula = 'CsOH 👩‍🔬', name = 'hydroxide', hl = 'Cs' },
+]
+
+[[entries]]
+id = 'be'
+symbol = 'Be'
+name = 'beryllium'
+
+[[entries.examples]]
+formula = 'BeO 🧪'
+name = 3
+
+[[entries.examples]]
+name = 'no formula here'

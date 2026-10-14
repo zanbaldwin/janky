@@ -1,0 +1,4 @@
+{"file":"notetypes/element/notetype.toml","line":1,"column":1,"end_line":1,"end_column":1,"severity":"error","code":"config::required","message":"missing key `cards`","help":null,"related":[]}
+{"file":"notetypes/element/notetype.toml","line":2,"column":10,"end_line":2,"end_column":11,"severity":"error","code":"config::type","message":"`schema`: 3 is not of type \"object\"","help":null,"related":[]}
+{"file":"notetypes/element/notetype.toml","line":3,"column":10,"end_line":3,"end_column":12,"severity":"error","code":"config::min-properties","message":"`fields`: {} has less than 1 property","help":null,"related":[]}
+{"file":"notetypes/element/notetype.toml","line":5,"column":2,"end_line":5,"end_column":9,"severity":"error","code":"config::unknown-key","message":"unknown key `colours`","help":null,"related":[]}

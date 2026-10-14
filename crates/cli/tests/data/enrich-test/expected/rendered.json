@@ -1,0 +1,133 @@
+{
+  "notetypes": {
+    "word": {
+      "css": "",
+      "cards": {
+        "recognition": {
+          "front": "{{Isotope}}\n",
+          "back": "{{Isotope}}\n"
+        }
+      }
+    }
+  },
+  "notes": [
+    {
+      "id": "iron",
+      "notetype": "word",
+      "fields": {
+        "isotope": "⁵⁶Fe",
+        "name": "iron-56",
+        "form": "metal"
+      }
+    },
+    {
+      "id": "carbon",
+      "notetype": "word",
+      "fields": {
+        "isotope": "¹²C",
+        "name": "carbon-12",
+        "form": "graphite; diamond"
+      }
+    },
+    {
+      "id": "ununennium",
+      "notetype": "word",
+      "fields": {
+        "isotope": "²⁹⁹Uue",
+        "name": "",
+        "form": ""
+      }
+    },
+    {
+      "id": "iron-again",
+      "notetype": "word",
+      "fields": {
+        "isotope": "⁵⁶Fe",
+        "name": "iron-56",
+        "form": "metal"
+      }
+    }
+  ],
+  "media": [],
+  "jobs": [
+    {
+      "instance": "dict",
+      "kind": "data",
+      "input": "⁵⁶Fe",
+      "hash": "1dd6721da2b2c37d3b976f3b50f5d482",
+      "key": {},
+      "ext": null,
+      "units": null,
+      "unit": null,
+      "file": "",
+      "exists": true
+    },
+    {
+      "instance": "dict",
+      "kind": "data",
+      "input": {
+        "isotope": "⁵⁶Fe",
+        "phase": "solid"
+      },
+      "hash": "eaa131d8bcf5a52563f08a8ee3a16f57",
+      "key": {},
+      "ext": null,
+      "units": null,
+      "unit": null,
+      "file": "",
+      "exists": true
+    },
+    {
+      "instance": "dict",
+      "kind": "data",
+      "input": "¹²C",
+      "hash": "2d2aa93bccd4daf552503c0457367e6c",
+      "key": {},
+      "ext": null,
+      "units": null,
+      "unit": null,
+      "file": "",
+      "exists": true
+    },
+    {
+      "instance": "dict",
+      "kind": "data",
+      "input": {
+        "isotope": "¹²C"
+      },
+      "hash": "ae68d60453b61664fc65791a3c4bf26a",
+      "key": {},
+      "ext": null,
+      "units": null,
+      "unit": null,
+      "file": "",
+      "exists": true
+    },
+    {
+      "instance": "dict",
+      "kind": "data",
+      "input": "²⁹⁹Uue",
+      "hash": "39affb4051d234f650f3cbb7aca613ac",
+      "key": {},
+      "ext": null,
+      "units": null,
+      "unit": null,
+      "file": "",
+      "exists": true
+    },
+    {
+      "instance": "dict",
+      "kind": "data",
+      "input": {
+        "isotope": "²⁹⁹Uue"
+      },
+      "hash": "d835474eacc56e06ed5b585b262b4391",
+      "key": {},
+      "ext": null,
+      "units": null,
+      "unit": null,
+      "file": "",
+      "exists": true
+    }
+  ]
+}

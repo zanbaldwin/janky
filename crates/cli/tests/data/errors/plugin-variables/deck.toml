@@ -1,0 +1,20 @@
+[deck]
+name = "Variables"
+content = ["content/*.yaml"]
+
+[notetypes.element]
+path = "notetypes/element.toml"
+default = true
+
+[plugins.style]
+path = "plugins/style.lua"
+variables = { mode = "loud", size = "12", colours = ["🔴 red", 3], box = {}, extra = true }
+
+[plugins.needs]
+path = "plugins/needs.lua"
+
+[plugins.plain]
+path = "plugins/plain.lua"
+
+[plugins.plain.variables]
+anything = 1

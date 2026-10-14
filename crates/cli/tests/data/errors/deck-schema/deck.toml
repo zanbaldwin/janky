@@ -1,0 +1,15 @@
+[deck]
+nmae = "Elements ⚛️"
+preset = 3
+content = "content/*.yaml"
+
+[deck.children.Metals]
+name = "Metals 🧪"
+
+[presets.metals]
+name = "Metals 🧪 preset"
+desired_retention = 1.5
+learning_steps = ["1m", "10 ⏱️"]
+review_sort_order = "by-deck"
+starting_ease = 2.5
+new_per_day = -1

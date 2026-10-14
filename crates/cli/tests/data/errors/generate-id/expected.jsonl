@@ -1,0 +1,1 @@
+{"file":"deck.toml","line":8,"column":8,"end_line":8,"end_column":25,"severity":"error","code":"plugin::id","message":"`plugins/two.lua` has the id `voice`, like `plugins/one.lua`: the id names the cached results, so it must be unique","help":null,"related":[]}

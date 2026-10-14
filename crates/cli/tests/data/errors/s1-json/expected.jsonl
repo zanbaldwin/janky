@@ -1,0 +1,8 @@
+{"file":"content/element-errors.json","line":4,"column":45,"end_line":4,"end_column":47,"severity":"error","code":"content::type","message":"`entries[0].name`: 42 is not of type \"string\"","help":null,"related":[]}
+{"file":"content/element-errors.json","line":5,"column":5,"end_line":5,"end_column":37,"severity":"error","code":"content::required","message":"missing key `symbol` in `entries[1]`","help":null,"related":[]}
+{"file":"content/element-errors.json","line":6,"column":54,"end_line":6,"end_column":60,"severity":"error","code":"content::unknown-key","message":"unknown key `entries[2].nmae`","help":null,"related":[]}
+{"file":"content/element-errors.json","line":7,"column":67,"end_line":7,"end_column":77,"severity":"error","code":"content::enum","message":"`entries[3].state`: \"plasma ⚡\" is not one of \"🧊 solid\", \"💧 liquid\" or \"💨 gas\"","help":null,"related":[]}
+{"file":"content/element-errors.json","line":9,"column":52,"end_line":9,"end_column":53,"severity":"error","code":"content::type","message":"`entries[4].examples[0].name`: 7 is not of type \"string\"","help":null,"related":[]}
+{"file":"content/element-errors.json","line":9,"column":57,"end_line":9,"end_column":96,"severity":"error","code":"content::required","message":"missing key `formula` in `entries[4].examples[1]`","help":null,"related":[]}
+{"file":"content/element-errors.json","line":9,"column":81,"end_line":9,"end_column":85,"severity":"error","code":"content::unknown-key","message":"unknown key `entries[4].examples[1].hl`","help":null,"related":[]}
+{"file":"content/element-errors.json","line":10,"column":58,"end_line":10,"end_column":64,"severity":"error","code":"json::duplicate-key","message":"duplicate key `name`","help":null,"related":[]}

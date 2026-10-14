@@ -1,0 +1,18 @@
+[deck]
+name = "Elements ⚛️"
+preset = "child"
+
+[presets.child]
+extends = "base"
+
+[presets.base]
+extends = "missing"
+
+[presets.one]
+extends = "two"
+
+[presets.two]
+extends = "one"
+
+[presets.alone]
+extends = "alone"

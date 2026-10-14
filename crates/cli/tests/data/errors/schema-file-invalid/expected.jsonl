@@ -1,0 +1,1 @@
+{"file":"notetypes/element/content.schema.json","line":3,"column":39,"end_line":3,"end_column":47,"severity":"error","code":"config::invalid-schema","message":"invalid JSON Schema: \"🧪 text\" is not valid under any of the schemas listed in the 'anyOf' keyword","help":null,"related":[]}

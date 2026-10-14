@@ -1,0 +1,13 @@
+{
+  "defaults": { "tags": ["periodic-table"] },
+  "entries": [
+    { "id": "li", "symbol": "Li 🔋", "name": 42 },
+    { "id": "na", "name": "sodium" },
+    { "id": "k", "symbol": "K", "name": "potassium", "nmae": "typo" },
+    { "id": "rb", "symbol": "Rb ⚛️", "name": "rubidium", "state": "plasma ⚡" },
+    { "id": "cs", "symbol": "Cs 👩‍🔬", "name": "caesium",
+      "examples": [ { "formula": "CsCl 🧂", "name": 7 }, { "name": "no formula", "hl": "Cs ⚛️" } ] },
+    { "id": "fr", "symbol": "Fr 🇫🇷", "name": "francium", "name": "again" },
+    { "id": "h", "symbol": "H 🧪", "name": "a\/b" }
+  ]
+}

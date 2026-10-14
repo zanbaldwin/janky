@@ -1,0 +1,67 @@
+name = "Element"
+sort_field = "symbol"
+css = "style.css"
+assets = ["assets/reveal.js"]
+plugins = ["atoms.lua"]
+
+[schema]
+symbol = { type = "string", required = true }
+name = { type = "string", required = true }
+number = { type = "int" }
+say = { type = "string" }
+notes = { type = "markdown" }
+image = { type = "media" }
+examples = { type = "list", of = { type = "string" } }
+cards = { type = "list", of = { type = "enum", values = [
+    "production",
+    "listening",
+] } }
+
+[fields.symbol]
+name = "Symbol"
+value = "{{ entry.symbol | nfc }}"
+[fields.name]
+name = "Name"
+[fields.notes]
+name = "Notes"
+value = "{{ entry.notes | markdown }}"
+[fields.image]
+name = "Image"
+value = "{% if entry.image %}{{ media(entry.image) | img }}{% endif %}"
+[fields.examples]
+name = "Examples"
+template = "fields/examples.html.j2"
+[fields.audio]
+name = "Audio"
+value = "{{ (entry.say or entry.name) | nfc | media('voice') | sound }}"
+[fields.mass]
+name = "Mass"
+value = "{{ enrich(entry.symbol, 'pubchem').mass if entry.type != 'compound' }}"
+[fields.config]
+name = "Configuration"
+value = "{{ enrich(entry.symbol, 'pubchem').config | superscript if entry.type != 'compound' }}"
+[fields.state]
+name = "State"
+value = "{{ enrich(entry.symbol, 'pubchem').state if entry.type != 'compound' }}"
+[fields.block]
+name = "Block"
+value = "{{ enrich(entry.symbol, 'pubchem').group_block if entry.type != 'compound' }}"
+[fields.discovered]
+name = "Discovered"
+value = "{{ enrich(entry.symbol, 'pubchem').discovered if entry.type != 'compound' }}"
+[fields.colour]
+name = "Colour"
+value = "{{ enrich(entry.symbol, 'pubchem').colour if entry.type != 'compound' }}"
+[fields.data]
+name = "Data"
+value = "{{ {'id': entry.id, 'deck': deck.full_name, 'examples': entry.examples or []} | json }}"
+
+[cards.recognition]
+name = "Recognition"
+front = "cards/recognition.front.html"
+back = "cards/recognition.back.html"
+[cards.production]
+name = "Production"
+front = "cards/production.front.html"
+back = "cards/production.back.html"
+when = "'production' in (entry.cards or ['production'])"

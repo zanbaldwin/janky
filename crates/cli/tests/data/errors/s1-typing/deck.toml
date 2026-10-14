@@ -1,0 +1,12 @@
+[deck]
+name = "S1"
+content = ["content/*"]
+
+[notetypes.element]
+path = "../../s1-notetypes/element"
+alias = ["metal", "gas"]
+default = true
+
+[notetypes.group]
+path = "../../s1-notetypes/group"
+alias = ["group"]

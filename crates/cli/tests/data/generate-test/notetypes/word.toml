@@ -1,0 +1,24 @@
+name = "Word"
+
+[schema]
+symbol = { type = "string", required = true }
+
+[fields.symbol]
+name = "Symbol"
+
+[fields.audio]
+name = "Audio"
+value = "{{ entry.symbol | media('voice') | sound }}"
+
+[fields.again]
+name = "Again"
+value = "{{ media(entry.symbol, 'voice').file }} {{ media(entry.symbol, 'voice').kind }}"
+
+[fields.plain]
+name = "Plain"
+value = "[{{ media(entry.symbol, 'plain') | sound }}]"
+
+[cards.recognition]
+name = "Recognition"
+front = "cards/front.html"
+back = "cards/front.html"

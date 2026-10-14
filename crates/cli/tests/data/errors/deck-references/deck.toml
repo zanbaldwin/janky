@@ -1,0 +1,38 @@
+[deck]
+name = "Elements ⚛️"
+output = "../outside.apkg"
+preset = "parent"
+
+[deck.children.one]
+name = "Metals 🧪"
+preset = "nobles"
+
+[deck.children.two]
+name = "Metals 🧪"
+preset = "noble"
+
+[presets.nobles]
+name = "Noble gases 💨"
+
+[presets.Parent]
+name = "Parent 👩‍🔬"
+
+[notetypes.element]
+path = "notetypes/element"
+alias = ["metal", "gas"]
+default = true
+
+[notetypes.other]
+path = "notetypes/element"
+alias = ["🧪", "metal"]
+default = true
+
+[notetypes.missing]
+path = "notetypes/⚛️-none"
+
+[notetypes.metal]
+path = "notetypes/element"
+
+[notetypes.single]
+path = "notetypes/element"
+alias = "element"

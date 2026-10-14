@@ -1,0 +1,38 @@
+defaults:
+  tags: ['periodic-table']
+entries:
+  - id: 'li'
+    symbol: 'Li'
+    name: 42
+  - id: 'na'
+    name: 'sodium'
+  - id: 'k'
+    symbol: 'K'
+    name: 'potassium'
+    nmae: 'typo'
+  - { id: 'rb', symbol: 'Rb ⚛️', name: 'rubidium', state: 'plasma ⚡' }
+  - id: 'Bad_Slug'
+    symbol: 'Mg'
+    name: 'magnesium'
+  - id: 'cs'
+    symbol: 'Cs'
+    name: 'caesium'
+    examples:
+      - formula: 'CsF'
+        name: 'caesium fluoride'
+      - { formula: 'CsCl 🧂', name: 7 }
+      - name: 'missing formula'
+        hl: '👩‍🔬'
+  - id: 'alkali-metals'
+    type: 'group'
+    group: '1 ⚛️'
+    property: ['reactive']
+  - id: 'he'
+    type: 'metalloid'
+    symbol: 'He'
+    name: 'helium'
+  - id: 'ne'
+    symbol: 'Ne'
+    name: 'neon'
+    cards: ['production', 'spectral']
+    compound: { formula: 'Ne 🧪', name: 'neon gas', extra: 1 }

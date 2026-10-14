@@ -1,0 +1,14 @@
+[deck]
+name = "Generate test"
+content = ["content/*.yaml"]
+
+[notetypes.word]
+path = "notetypes/word.toml"
+default = true
+
+[plugins.voice]
+path = "plugins/voice.lua"
+variables = { speed = 1, voice = "Marie" }
+
+[plugins.plain]
+path = "plugins/plain.lua"

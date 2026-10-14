@@ -1,0 +1,2 @@
+{% set symbol = entry.symbol | nfc %}{% for example in entry.examples %}<p>{{ example | nfc }}</p>{% endfor %}
+{% if entry.number %}{% set place = entry.number | position %}<p>{{ symbol }}: period {{ place.period }}, group {{ place.group }}</p>{% endif %}

@@ -1,0 +1,7 @@
+entries:
+  - id: 'li'
+    symbol: 'Li'
+    examples: ['🔋 Li-ion']
+  - id: 'na'
+    symbol: 'Na'
+    examples: ['NaCl']

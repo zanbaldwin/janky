@@ -1,0 +1,15 @@
+[deck]
+name = "Rules ⚛️"
+content = ["content/a.yaml", "content/["]
+
+[deck.children.extra]
+name = "Extra"
+content = ["content/*.yaml", "content/*.toml", "content/*.json"]
+
+[notetypes.element]
+path = "../../example/notetypes/element"
+alias = ["metal"]
+
+[notetypes.group]
+path = "../../example/notetypes/group.toml"
+alias = ["group"]

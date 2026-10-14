@@ -1,0 +1,20 @@
+name = "Element Group"
+sort_field = "group"
+
+[schema]
+group    = { type = "string", required = true }
+property = { type = "string", required = true }
+trend    = { type = "string" }
+state    = { type = "enum", values = ["🧊 solid", "💧 liquid", "💨 gas"] }
+examples = { type = "list", of = { type = "object", fields = { formula = { type = "string", required = true }, name = { type = "string" } } } }
+
+[fields.group]
+name = "Group"
+
+[fields.property]
+name = "Property"
+
+[cards.group]
+name = "Group"
+front = "cards/front.html"
+back = "cards/back.html"

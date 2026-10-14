@@ -1,0 +1,16 @@
+entries:
+  - { id: 'v-yes', symbol: '⚛️', name: yes }
+  - { id: 'v-no', symbol: '🧪', name: no }
+  - { id: 'v-on', symbol: '👩‍🔬', name: on }
+  - { id: 'v-y', symbol: 'Y🇬🇧', name: y }
+  - { id: 'v-true', symbol: 'Té', name: True }
+  - { id: 'v-date', symbol: '📅', name: 1869-03-06 }
+  - { id: 'v-012', symbol: '⚗️', name: 012 }
+  - { id: 'v-1e3', symbol: '🔬', name: 1e3 }
+  - { id: 'v-hex', symbol: '🧲', name: 0x1F }
+  - { id: 'v-octal', symbol: '🔥', name: 0o17 }
+  - { id: 'v-tilde', symbol: '∅', name: ~ }
+  - { id: 'v-empty', symbol: '🫙', name: }
+  - { id: 'v-emoji', symbol: ⚛️, name: boron }
+  - { id: 'v-quoted-num', symbol: '🧪', name: '1' }
+  - { id: 'v-num', symbol: '💧', name: 1 }

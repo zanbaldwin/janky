@@ -1,0 +1,7 @@
+{
+  "defaults": { "tags": ["late"] },
+  "entries": [
+    { "id": "fe", "symbol": "Fe", "name": "Iron", "number": 26, "examples": ["Fe is from the Latin ferrum."] },
+    { "id": "au", "symbol": "Au", "name": "Gold", "number": 79, "examples": ["Au is from the Latin aurum 🥇"] }
+  ]
+}

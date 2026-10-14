@@ -1,0 +1,7 @@
+entries:
+  - id: 'li'
+    type: 'metal'
+  - id: '⚛️-no-type'
+    symbol: '∅'
+  - id: 'metalloid'
+    type: 'metalloid'

@@ -1,0 +1,12 @@
+{"file":"deck.toml","line":6,"column":7,"end_line":6,"end_column":45,"severity":"error","code":"config::source","message":"a note type has `git` or `url`, not both","help":null,"related":[]}
+{"file":"deck.toml","line":9,"column":1,"end_line":9,"end_column":20,"severity":"error","code":"config::source","message":"a local note type needs `path`","help":null,"related":[]}
+{"file":"deck.toml","line":13,"column":7,"end_line":13,"end_column":42,"severity":"error","code":"config::source","message":"a `git` source needs one of `tag`, `rev` or `branch`","help":null,"related":[]}
+{"file":"deck.toml","line":18,"column":10,"end_line":18,"end_column":16,"severity":"error","code":"config::source","message":"`tag` and `branch` cannot be used together","help":null,"related":[]}
+{"file":"deck.toml","line":21,"column":7,"end_line":21,"end_column":45,"severity":"error","code":"config::source","message":"a `url` source needs `sha256`","help":null,"related":[]}
+{"file":"deck.toml","line":24,"column":7,"end_line":24,"end_column":44,"severity":"error","code":"config::source","message":"a `url` source must use `https://`","help":null,"related":[]}
+{"file":"deck.toml","line":29,"column":7,"end_line":29,"end_column":15,"severity":"error","code":"config::source","message":"`tag` is only for `git` sources","help":null,"related":[]}
+{"file":"deck.toml","line":34,"column":10,"end_line":34,"end_column":16,"severity":"error","code":"config::source","message":"`branch` is only for `git` sources","help":null,"related":[]}
+{"file":"deck.toml","line":39,"column":10,"end_line":39,"end_column":76,"severity":"error","code":"config::source","message":"`sha256` is only for `url` sources","help":null,"related":[]}
+{"file":"deck.toml","line":44,"column":8,"end_line":44,"end_column":23,"severity":"error","code":"config::source","message":"`../group.toml` is outside the source","help":null,"related":[]}
+{"file":"deck.toml","line":47,"column":7,"end_line":47,"end_column":50,"severity":"error","code":"config::source","message":"a `git` source must use `https://` or `git://`","help":null,"related":[]}
+{"file":"deck.toml","line":51,"column":7,"end_line":51,"end_column":42,"severity":"error","code":"config::source","message":"a `url` source must end in `.tar.gz`, `.tgz` or `.zip`","help":null,"related":[]}

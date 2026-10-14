@@ -1,0 +1,18 @@
+[deck]
+name = "Plugins"
+
+[notetypes.element]
+path = "notetypes/element"
+
+[plugins.chem]
+path = "plugins/chem.lua"
+variables = { mode = "bold", "🧪 level" = 2 }
+
+[plugins.missing]
+path = "plugins/⚛️-none.lua"
+
+[plugins.outside]
+path = "../chem.lua"
+
+[plugins.Chem]
+path = "plugins/chem.lua"

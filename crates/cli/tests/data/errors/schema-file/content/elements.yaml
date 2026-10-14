@@ -1,0 +1,9 @@
+entries:
+  - id: 'li'
+    symbol: 'Li'
+    level: 9
+  - id: 'na'
+    symbol: Na
+    level: 2
+  - id: 'k'
+    symbol: 012

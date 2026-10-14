@@ -1,0 +1,16 @@
+name = "Element Group"
+
+[schema]
+group = { type = "string", required = true }
+property = { type = "string", required = true }
+
+[fields.group]
+name = "Group"
+
+[fields.property]
+name = "Property"
+
+[cards.group]
+name = "Group"
+front = "group/cards/group.front.html"
+back = "group/cards/group.back.html"

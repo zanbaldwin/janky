@@ -1,0 +1,7 @@
+[deck]
+name = "Lock"
+
+[notetypes.element]
+path = "../../example/notetypes/element"
+alias = ["metal"]
+default = true

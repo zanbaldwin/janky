@@ -1,0 +1,18 @@
+name = "Elements"
+sort_field = "👩‍🔬"
+css = "style.css"
+assets = ["../../deck.toml"]
+schema = "content.schema.json"
+
+[fields.symbol]
+name = "Symbol"
+value = "{{ entry.symbol }}"
+template = "fields/symbol.html.j2"
+
+[fields.Name]
+name = "Name"
+
+[cards.recognition]
+name = "Recognition"
+front = "cards/front.html"
+back = "/etc/passwd"

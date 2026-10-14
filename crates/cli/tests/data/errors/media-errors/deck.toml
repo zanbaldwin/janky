@@ -1,0 +1,9 @@
+[deck]
+name = "Media"
+media_dirs = ["media", "more", "🧪-none"]
+content = ["content/*"]
+
+[notetypes.element]
+path = "../../example/notetypes/element"
+alias = ["metal"]
+default = true

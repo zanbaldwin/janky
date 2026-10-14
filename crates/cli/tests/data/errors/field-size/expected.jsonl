@@ -1,0 +1,1 @@
+{"file":"notetypes/element.toml","line":8,"column":9,"end_line":8,"end_column":36,"severity":"error","code":"template::too-large","message":"field `symbol` has 1200000 bytes, more than the limit of 1048576 bytes","help":"entry `h` in `content/elements.yaml`","related":[]}

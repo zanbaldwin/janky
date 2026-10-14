@@ -1,0 +1,11 @@
+[deck]
+name = "Plugin test"
+content = ["content/*.yaml"]
+
+[notetypes.word]
+path = "notetypes/word.toml"
+default = true
+
+[plugins.text]
+path = "plugins/text.lua"
+variables = { ending = "!" }

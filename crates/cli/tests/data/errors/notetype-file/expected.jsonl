@@ -1,0 +1,2 @@
+{"file":"notetypes/element.toml","line":9,"column":8,"end_line":9,"end_column":22,"severity":"error","code":"config::outside-notetype","message":"`../deck.toml` is outside the note type directory","help":null,"related":[]}
+{"file":"deck.toml","line":8,"column":8,"end_line":8,"end_column":32,"severity":"error","code":"config::missing-notetype","message":"`notetypes/⚛️-none.toml` does not exist","help":null,"related":[]}

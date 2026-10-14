@@ -1,0 +1,8 @@
+[deck]
+name = "Parsing ⚛️"
+content = ["content/*"]
+
+[notetypes.element]
+path = "../../example/notetypes/element"
+alias = ["metal"]
+default = true

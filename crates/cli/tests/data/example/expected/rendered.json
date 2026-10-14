@@ -1,0 +1,343 @@
+{
+  "notetypes": {
+    "element": {
+      "css": ".card { font-family: sans-serif; }\n.facts, .colour { color: #666; }\n.discovered { margin: 0.5em 0; }\n",
+      "cards": {
+        "recognition": {
+          "front": "{{Symbol}}\n",
+          "back": "{{FrontSide}}<hr id=\"answer\">{{Name}}\n{{#Mass}}<div class=\"facts\"><span class=\"mass\">{{Mass}}</span> {{Configuration}} <span class=\"state\">{{State}}</span> {{Block}}</div>{{/Mass}}\n{{#Discovered}}<div class=\"discovered\">{{Discovered}}</div>{{/Discovered}}\n{{#Colour}}<div class=\"colour\">{{Colour}}</div>{{/Colour}}\n{{#Notes}}<div class=\"notes\">{{Notes}}</div>{{/Notes}}\n{{Audio}}\n{{#Examples}}<div class=\"examples\">{{Examples}}</div>{{/Examples}}\n{{Image}}\n<script>\ndocument.querySelectorAll(\".notes\").forEach((notes) => notes.classList.add(\"shown\"));\n</script>\n"
+        },
+        "production": {
+          "front": "{{#_make_production}}{{Name}}\n{{/_make_production}}",
+          "back": "{{FrontSide}}<hr id=\"answer\">{{Symbol}}\n{{Audio}}\n{{#Examples}}<div class=\"examples\">{{Examples}}</div>{{/Examples}}\n"
+        }
+      }
+    },
+    "group": {
+      "css": "",
+      "cards": {
+        "group": {
+          "front": "{{Group}}\n",
+          "back": "{{FrontSide}}<hr id=\"answer\">{{Property}}\n"
+        }
+      }
+    }
+  },
+  "notes": [
+    {
+      "id": "alkali-metals",
+      "notetype": "group",
+      "fields": {
+        "group": "Group 1",
+        "property": "reacts with water"
+      }
+    },
+    {
+      "id": "halogens",
+      "notetype": "group",
+      "fields": {
+        "group": "Group 17",
+        "property": "forms salts"
+      }
+    },
+    {
+      "id": "li",
+      "notetype": "element",
+      "fields": {
+        "symbol": "Li",
+        "name": "Lithium",
+        "notes": "<p>Soft enough to cut: <strong>Li</strong> floats on oil.</p>",
+        "image": "",
+        "examples": "<p>Li powers phone batteries 🔋</p>\n<p>Li: period 2, group 1</p>",
+        "audio": "[sound:2edd12ed13025a468de79acd727380dd.ogg]",
+        "mass": "Li.0",
+        "config": "[He] 2s<sup>1</sup> Li",
+        "state": "Solid",
+        "block": "Metal ⚛️",
+        "discovered": "Ancient",
+        "colour": "&lt;b&gt;Li&lt;/b&gt;",
+        "data": "{\"id\":\"li\",\"deck\":\"Periodic Table::0 Elements\",\"examples\":[\"Li powers phone batteries 🔋\"]}",
+        "_make_production": "y"
+      }
+    },
+    {
+      "id": "water",
+      "notetype": "element",
+      "fields": {
+        "symbol": "H₂O",
+        "name": "Water",
+        "notes": "",
+        "image": "",
+        "examples": "<p>Covers most of the planet 🌊</p><p>Tom &amp; &lt;Jerry&gt;</p>\n",
+        "audio": "[sound:e408881ea392f2e5c6237d4af01fb231.ogg]",
+        "mass": "",
+        "config": "",
+        "state": "",
+        "block": "",
+        "discovered": "",
+        "colour": "",
+        "data": "{\"id\":\"water\",\"deck\":\"Periodic Table::0 Elements\",\"examples\":[\"Covers most of the planet 🌊\",\"Tom \\u0026 \\u003cJerry>\"]}",
+        "_make_production": "y"
+      }
+    },
+    {
+      "id": "c",
+      "notetype": "element",
+      "fields": {
+        "symbol": "C",
+        "name": "Carbon",
+        "notes": "",
+        "image": "<img src=\"diamond.png\">",
+        "examples": "<p>A diamond is pure carbon 💎</p>\n<p>C: period 2, group 14</p>",
+        "audio": "[sound:e34b9d16251e7177cd81f65691c5ca44.ogg]",
+        "mass": "C.0",
+        "config": "[He] 2s<sup>1</sup> C",
+        "state": "Solid",
+        "block": "Metal ⚛️",
+        "discovered": "Ancient",
+        "colour": "&lt;b&gt;C&lt;/b&gt;",
+        "data": "{\"id\":\"c\",\"deck\":\"Periodic Table::0 Elements\",\"examples\":[\"A diamond is pure carbon 💎\"]}",
+        "_make_production": ""
+      }
+    },
+    {
+      "id": "fe",
+      "notetype": "element",
+      "fields": {
+        "symbol": "Fe",
+        "name": "Iron",
+        "notes": "",
+        "image": "",
+        "examples": "<p>Fe is from the Latin ferrum.</p>\n<p>Fe: period 4, group 8</p>",
+        "audio": "[sound:ba0307aa30cd83b3f07eecd02d9ba080.ogg]",
+        "mass": "Fe.0",
+        "config": "[He] 2s<sup>1</sup> Fe",
+        "state": "Solid",
+        "block": "Metal ⚛️",
+        "discovered": "Ancient",
+        "colour": "&lt;b&gt;Fe&lt;/b&gt;",
+        "data": "{\"id\":\"fe\",\"deck\":\"Periodic Table::0 Elements\",\"examples\":[\"Fe is from the Latin ferrum.\"]}",
+        "_make_production": "y"
+      }
+    },
+    {
+      "id": "au",
+      "notetype": "element",
+      "fields": {
+        "symbol": "Au",
+        "name": "Gold",
+        "notes": "",
+        "image": "",
+        "examples": "<p>Au is from the Latin aurum 🥇</p>\n<p>Au: period 6, group 11</p>",
+        "audio": "[sound:41bba48490ccd94aa7c5897de7ee7e65.ogg]",
+        "mass": "Au.0",
+        "config": "[He] 2s<sup>1</sup> Au",
+        "state": "Solid",
+        "block": "Metal ⚛️",
+        "discovered": "Ancient",
+        "colour": "&lt;b&gt;Au&lt;/b&gt;",
+        "data": "{\"id\":\"au\",\"deck\":\"Periodic Table::0 Elements\",\"examples\":[\"Au is from the Latin aurum 🥇\"]}",
+        "_make_production": "y"
+      }
+    }
+  ],
+  "media": [
+    {
+      "name": "diamond.png",
+      "path": "media/images/diamond.png",
+      "kind": "referenced"
+    },
+    {
+      "name": "2edd12ed13025a468de79acd727380dd.ogg",
+      "path": ".janky/cache/media/2edd12ed13025a468de79acd727380dd.ogg",
+      "kind": "generated"
+    },
+    {
+      "name": "e408881ea392f2e5c6237d4af01fb231.ogg",
+      "path": ".janky/cache/media/e408881ea392f2e5c6237d4af01fb231.ogg",
+      "kind": "generated"
+    },
+    {
+      "name": "e34b9d16251e7177cd81f65691c5ca44.ogg",
+      "path": ".janky/cache/media/e34b9d16251e7177cd81f65691c5ca44.ogg",
+      "kind": "generated"
+    },
+    {
+      "name": "ba0307aa30cd83b3f07eecd02d9ba080.ogg",
+      "path": ".janky/cache/media/ba0307aa30cd83b3f07eecd02d9ba080.ogg",
+      "kind": "generated"
+    },
+    {
+      "name": "41bba48490ccd94aa7c5897de7ee7e65.ogg",
+      "path": ".janky/cache/media/41bba48490ccd94aa7c5897de7ee7e65.ogg",
+      "kind": "generated"
+    }
+  ],
+  "jobs": [
+    {
+      "instance": "voice",
+      "kind": "media",
+      "input": "Lithium",
+      "hash": "2edd12ed13025a468de79acd727380dd",
+      "key": {
+        "language": "en",
+        "model": "eleven_v4",
+        "output_format": "opus_48000_64",
+        "voice": "JBFqnCBsd6RMkjVDRZzb",
+        "voice_settings": {
+          "similarity_boost": 0.75,
+          "stability": 0.35
+        }
+      },
+      "ext": "ogg",
+      "units": 7,
+      "unit": "characters",
+      "file": "2edd12ed13025a468de79acd727380dd.ogg",
+      "exists": true
+    },
+    {
+      "instance": "pubchem",
+      "kind": "data",
+      "input": "Li",
+      "hash": "968d544bbb5e383672041951345a070d",
+      "key": {
+        "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/periodictable/JSON",
+        "v": 1
+      },
+      "ext": null,
+      "units": 1,
+      "unit": "lookups",
+      "file": "",
+      "exists": true
+    },
+    {
+      "instance": "voice",
+      "kind": "media",
+      "input": "Water",
+      "hash": "e408881ea392f2e5c6237d4af01fb231",
+      "key": {
+        "language": "en",
+        "model": "eleven_v4",
+        "output_format": "opus_48000_64",
+        "voice": "JBFqnCBsd6RMkjVDRZzb",
+        "voice_settings": {
+          "similarity_boost": 0.75,
+          "stability": 0.35
+        }
+      },
+      "ext": "ogg",
+      "units": 5,
+      "unit": "characters",
+      "file": "e408881ea392f2e5c6237d4af01fb231.ogg",
+      "exists": true
+    },
+    {
+      "instance": "voice",
+      "kind": "media",
+      "input": "Carbon",
+      "hash": "e34b9d16251e7177cd81f65691c5ca44",
+      "key": {
+        "language": "en",
+        "model": "eleven_v4",
+        "output_format": "opus_48000_64",
+        "voice": "JBFqnCBsd6RMkjVDRZzb",
+        "voice_settings": {
+          "similarity_boost": 0.75,
+          "stability": 0.35
+        }
+      },
+      "ext": "ogg",
+      "units": 6,
+      "unit": "characters",
+      "file": "e34b9d16251e7177cd81f65691c5ca44.ogg",
+      "exists": true
+    },
+    {
+      "instance": "pubchem",
+      "kind": "data",
+      "input": "C",
+      "hash": "ee95c510f95948365d702858cc827424",
+      "key": {
+        "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/periodictable/JSON",
+        "v": 1
+      },
+      "ext": null,
+      "units": 1,
+      "unit": "lookups",
+      "file": "",
+      "exists": true
+    },
+    {
+      "instance": "voice",
+      "kind": "media",
+      "input": "Iron",
+      "hash": "ba0307aa30cd83b3f07eecd02d9ba080",
+      "key": {
+        "language": "en",
+        "model": "eleven_v4",
+        "output_format": "opus_48000_64",
+        "voice": "JBFqnCBsd6RMkjVDRZzb",
+        "voice_settings": {
+          "similarity_boost": 0.75,
+          "stability": 0.35
+        }
+      },
+      "ext": "ogg",
+      "units": 4,
+      "unit": "characters",
+      "file": "ba0307aa30cd83b3f07eecd02d9ba080.ogg",
+      "exists": true
+    },
+    {
+      "instance": "pubchem",
+      "kind": "data",
+      "input": "Fe",
+      "hash": "38d9b7bb553b855614b052e259f98e67",
+      "key": {
+        "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/periodictable/JSON",
+        "v": 1
+      },
+      "ext": null,
+      "units": 1,
+      "unit": "lookups",
+      "file": "",
+      "exists": true
+    },
+    {
+      "instance": "voice",
+      "kind": "media",
+      "input": "Gold",
+      "hash": "41bba48490ccd94aa7c5897de7ee7e65",
+      "key": {
+        "language": "en",
+        "model": "eleven_v4",
+        "output_format": "opus_48000_64",
+        "voice": "JBFqnCBsd6RMkjVDRZzb",
+        "voice_settings": {
+          "similarity_boost": 0.75,
+          "stability": 0.35
+        }
+      },
+      "ext": "ogg",
+      "units": 4,
+      "unit": "characters",
+      "file": "41bba48490ccd94aa7c5897de7ee7e65.ogg",
+      "exists": true
+    },
+    {
+      "instance": "pubchem",
+      "kind": "data",
+      "input": "Au",
+      "hash": "e02a5d89ead4b23dcab844b0d1cf6d84",
+      "key": {
+        "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/periodictable/JSON",
+        "v": 1
+      },
+      "ext": null,
+      "units": 1,
+      "unit": "lookups",
+      "file": "",
+      "exists": true
+    }
+  ]
+}

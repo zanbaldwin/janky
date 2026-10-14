@@ -1,0 +1,7 @@
+{"file":"content/element-errors.toml","line":7,"column":8,"end_line":7,"end_column":10,"severity":"error","code":"content::type","message":"`entries[0].name`: 42 is not of type \"string\"","help":null,"related":[]}
+{"file":"content/element-errors.toml","line":9,"column":1,"end_line":9,"end_column":12,"severity":"error","code":"content::required","message":"missing key `symbol` in `entries[1]`","help":null,"related":[]}
+{"file":"content/element-errors.toml","line":17,"column":1,"end_line":17,"end_column":5,"severity":"error","code":"content::unknown-key","message":"unknown key `entries[2].nmae`","help":null,"related":[]}
+{"file":"content/element-errors.toml","line":23,"column":41,"end_line":23,"end_column":42,"severity":"error","code":"content::type","message":"`entries[3].compound.name`: 7 is not of type \"string\"","help":null,"related":[]}
+{"file":"content/element-errors.toml","line":26,"column":47,"end_line":26,"end_column":49,"severity":"error","code":"content::unknown-key","message":"unknown key `entries[3].examples[1].hl`","help":null,"related":[]}
+{"file":"content/element-errors.toml","line":36,"column":8,"end_line":36,"end_column":9,"severity":"error","code":"content::type","message":"`entries[4].examples[0].name`: 3 is not of type \"string\"","help":null,"related":[]}
+{"file":"content/element-errors.toml","line":38,"column":1,"end_line":38,"end_column":21,"severity":"error","code":"content::required","message":"missing key `formula` in `entries[4].examples[1]`","help":null,"related":[]}

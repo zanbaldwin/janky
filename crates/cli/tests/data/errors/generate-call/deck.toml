@@ -1,0 +1,13 @@
+[deck]
+name = "Generate errors"
+content = ["content/*.yaml"]
+
+[notetypes.element]
+path = "notetypes/element.toml"
+default = true
+
+[plugins.broken]
+path = "plugins/broken.lua"
+
+[plugins.wrong]
+path = "plugins/wrong.lua"

@@ -1,0 +1,52 @@
+[deck]
+name = "Remote"
+
+[notetypes.both]
+git = "https://example.com/notetypes.git"
+url = "https://example.com/notetypes.tar.gz"
+sha256 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+
+[notetypes.nothing]
+alias = "nothing-at-all"
+
+[notetypes.no-reference]
+git = "https://example.com/notetypes.git"
+
+[notetypes.two-references]
+git = "https://example.com/notetypes.git"
+tag = "v1.0.0"
+branch = "main"
+
+[notetypes.no-hash]
+url = "https://example.com/notetypes.tar.gz"
+
+[notetypes.plain-http]
+url = "http://example.com/notetypes.tar.gz"
+sha256 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+
+[notetypes.local-tag]
+path = "../../example/notetypes/group.toml"
+tag = "v1.0.0"
+
+[notetypes.url-branch]
+url = "http://localhost:8080/notetypes.tar.gz"
+sha256 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+branch = "main"
+
+[notetypes.git-hash]
+git = "https://example.com/notetypes.git"
+rev = "0123abc"
+sha256 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+
+[notetypes.outside]
+git = "https://example.com/notetypes.git"
+tag = "v1.0.0"
+path = "../group.toml"
+
+[notetypes.ssh]
+git = "git@github.com:example/anki-notetypes.git"
+tag = "v1.0.0"
+
+[notetypes.not-archive]
+url = "https://example.com/notetypes.txt"
+sha256 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"

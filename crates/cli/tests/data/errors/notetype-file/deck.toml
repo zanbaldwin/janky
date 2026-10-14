@@ -1,0 +1,8 @@
+[deck]
+name = "Note type file"
+
+[notetypes.element]
+path = "notetypes/element.toml"
+
+[notetypes.missing]
+path = "notetypes/⚛️-none.toml"

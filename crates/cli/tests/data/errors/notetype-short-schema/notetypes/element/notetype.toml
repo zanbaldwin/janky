@@ -1,0 +1,22 @@
+name = "Elements"
+
+[schema]
+id       = { type = "int", required = true }
+type     = { type = "string" }
+symbol   = { type = "string", required = true, values = ["⚛️"] }
+state    = { type = "enum" }
+examples = { type = "list" }
+compound = { type = "object", schema = "compound", fields = { formula = { type = "string" } } }
+other    = { type = "object", schema = "🧪-none" }
+nested   = { type = "list", of = { type = "object" } }
+
+[schema.defs.compound]
+formula = { type = "string" }
+
+[fields.symbol]
+name = "Symbol"
+
+[cards.recognition]
+name = "Recognition"
+front = "cards/front.html"
+back = "cards/back.html"

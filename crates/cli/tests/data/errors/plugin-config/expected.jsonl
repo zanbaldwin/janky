@@ -1,0 +1,5 @@
+{"file":"deck.toml","line":12,"column":8,"end_line":12,"end_column":29,"severity":"error","code":"config::missing-file","message":"file `plugins/⚛️-none.lua` does not exist","help":null,"related":[]}
+{"file":"deck.toml","line":15,"column":8,"end_line":15,"end_column":21,"severity":"error","code":"config::outside-project","message":"`../chem.lua` is outside the project directory","help":null,"related":[]}
+{"file":"deck.toml","line":17,"column":10,"end_line":17,"end_column":14,"severity":"error","code":"config::key","message":"`Chem` is not a valid key","help":"a key starts with a lowercase letter and holds only lowercase letters, digits, `_` and `-`","related":[]}
+{"file":"notetypes/element/notetype.toml","line":2,"column":24,"end_line":2,"end_column":37,"severity":"error","code":"config::missing-file","message":"file `⚛️-none.lua` does not exist","help":null,"related":[]}
+{"file":"notetypes/element/notetype.toml","line":2,"column":39,"end_line":2,"end_column":56,"severity":"error","code":"config::outside-notetype","message":"`../../deck.toml` is outside the note type directory","help":null,"related":[]}

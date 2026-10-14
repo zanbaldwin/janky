@@ -1,0 +1,8 @@
+[deck]
+name = "Schema"
+content = ["content/*"]
+
+[notetypes.element]
+path = "notetypes/element"
+alias = ["metal"]
+default = true

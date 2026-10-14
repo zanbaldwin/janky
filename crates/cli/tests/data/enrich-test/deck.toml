@@ -1,0 +1,10 @@
+[deck]
+name = "Enrich test"
+content = ["content/*.yaml"]
+
+[notetypes.word]
+path = "notetypes/word.toml"
+default = true
+
+[plugins.dict]
+path = "plugins/dict.lua"

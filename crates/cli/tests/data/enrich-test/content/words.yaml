@@ -1,0 +1,11 @@
+entries:
+  - id: 'iron'
+    isotope: '⁵⁶Fe'
+    phase: 'solid'
+  - id: 'carbon'
+    isotope: '¹²C'
+  - id: 'ununennium'
+    isotope: '²⁹⁹Uue'
+  - id: 'iron-again'
+    isotope: '⁵⁶Fe'
+    phase: 'solid'

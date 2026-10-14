@@ -1,0 +1,22 @@
+defaults:
+  tags: ['early']
+entries:
+  - id: 'li'
+    symbol: 'Li'
+    name: 'Lithium'
+    number: 3
+    notes: 'Soft enough to cut: **Li** floats on oil.'
+    examples: ['Li powers phone batteries 🔋']
+  - id: 'water'
+    type: 'compound'
+    symbol: 'H₂O'
+    name: 'Water'
+    tags: ['common']
+    examples: ['Covers most of the planet 🌊', 'Tom & <Jerry>']
+  - id: 'c'
+    symbol: 'C'
+    name: 'Carbon'
+    number: 6
+    image: 'images/diamond.png'
+    examples: ['A diamond is pure carbon 💎']
+    cards: ['listening']

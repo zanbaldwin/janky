@@ -1,0 +1,5 @@
+[deck]
+name = "Schema"
+
+[notetypes.element]
+path = "notetypes/element"

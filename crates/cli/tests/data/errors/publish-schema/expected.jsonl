@@ -1,0 +1,3 @@
+{"file":"deck.toml","line":4,"column":1,"end_line":4,"end_column":10,"severity":"error","code":"config::required","message":"missing key `password` in `publish`","help":null,"related":[]}
+{"file":"deck.toml","line":6,"column":12,"end_line":6,"end_column":14,"severity":"error","code":"config::min-length","message":"`publish.username`: \"\" is shorter than 1 character","help":null,"related":[]}
+{"file":"deck.toml","line":7,"column":1,"end_line":7,"end_column":8,"severity":"error","code":"config::unknown-key","message":"unknown key `publish.pasword`","help":null,"related":[]}

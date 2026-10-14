@@ -1,0 +1,12 @@
+[defaults]
+type = 'group'
+
+[[entries]]
+id = 'alkali-metals'
+group = 'Group 1'
+property = 'reacts with water'
+
+[[entries]]
+id = 'halogens'
+group = 'Group 17'
+property = 'forms salts'

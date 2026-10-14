@@ -1,0 +1,10 @@
+{"file":"deck.toml","line":3,"column":10,"end_line":3,"end_column":27,"severity":"error","code":"config::outside-project","message":"`../outside.apkg` is outside the project directory","help":null,"related":[]}
+{"file":"deck.toml","line":4,"column":10,"end_line":4,"end_column":18,"severity":"error","code":"config::unknown-preset","message":"preset `parent` does not exist","help":null,"related":[]}
+{"file":"deck.toml","line":11,"column":8,"end_line":11,"end_column":18,"severity":"error","code":"config::duplicate-deck","message":"two decks have the full name `Elements ⚛️::Metals 🧪`","help":null,"related":[]}
+{"file":"deck.toml","line":12,"column":10,"end_line":12,"end_column":17,"severity":"error","code":"config::unknown-preset","message":"preset `noble` does not exist","help":null,"related":[]}
+{"file":"deck.toml","line":17,"column":10,"end_line":17,"end_column":16,"severity":"error","code":"config::key","message":"`Parent` is not a valid key","help":"a key starts with a lowercase letter and holds only lowercase letters, digits, `_` and `-`","related":[]}
+{"file":"deck.toml","line":27,"column":15,"end_line":27,"end_column":22,"severity":"error","code":"config::duplicate-type","message":"entry type `metal` already belongs to note type `element`","help":null,"related":[]}
+{"file":"deck.toml","line":28,"column":11,"end_line":28,"end_column":15,"severity":"error","code":"config::duplicate-default","message":"note type `element` is already the default","help":null,"related":[]}
+{"file":"deck.toml","line":33,"column":12,"end_line":33,"end_column":17,"severity":"error","code":"config::duplicate-type","message":"entry type `metal` already belongs to note type `element`","help":null,"related":[]}
+{"file":"deck.toml","line":38,"column":9,"end_line":38,"end_column":18,"severity":"error","code":"config::duplicate-type","message":"entry type `element` already belongs to note type `element`","help":null,"related":[]}
+{"file":"deck.toml","line":31,"column":8,"end_line":31,"end_column":27,"severity":"error","code":"config::missing-notetype","message":"`notetypes/⚛️-none` does not exist","help":null,"related":[]}

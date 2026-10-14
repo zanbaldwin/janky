@@ -1,0 +1,4 @@
+{"file":"deck.toml","line":9,"column":11,"end_line":9,"end_column":20,"severity":"error","code":"config::unknown-preset","message":"preset `missing` does not exist","help":null,"related":[]}
+{"file":"deck.toml","line":12,"column":11,"end_line":12,"end_column":16,"severity":"error","code":"config::preset-loop","message":"the `extends` chain of preset `one` comes back to `one`","help":null,"related":[]}
+{"file":"deck.toml","line":15,"column":11,"end_line":15,"end_column":16,"severity":"error","code":"config::preset-loop","message":"the `extends` chain of preset `two` comes back to `two`","help":null,"related":[]}
+{"file":"deck.toml","line":18,"column":11,"end_line":18,"end_column":18,"severity":"error","code":"config::preset-loop","message":"the `extends` chain of preset `alone` comes back to `alone`","help":null,"related":[]}

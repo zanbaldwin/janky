@@ -1,0 +1,8 @@
+{"file":"notetypes/element/notetype.toml","line":4,"column":21,"end_line":4,"end_column":26,"severity":"error","code":"config::id-type","message":"`id` must be a `string` or a `slug`","help":null,"related":[]}
+{"file":"notetypes/element/notetype.toml","line":5,"column":1,"end_line":5,"end_column":5,"severity":"error","code":"config::reserved-key","message":"`type` is a reserved key","help":null,"related":[]}
+{"file":"notetypes/element/notetype.toml","line":6,"column":57,"end_line":6,"end_column":63,"severity":"error","code":"config::field-spec","message":"`values` is only for `enum`","help":null,"related":[]}
+{"file":"notetypes/element/notetype.toml","line":7,"column":12,"end_line":7,"end_column":29,"severity":"error","code":"config::field-spec","message":"an `enum` needs `values`","help":null,"related":[]}
+{"file":"notetypes/element/notetype.toml","line":8,"column":12,"end_line":8,"end_column":29,"severity":"error","code":"config::field-spec","message":"a `list` needs `of`","help":null,"related":[]}
+{"file":"notetypes/element/notetype.toml","line":9,"column":61,"end_line":9,"end_column":94,"severity":"error","code":"config::field-spec","message":"an `object` has `schema` or `fields`, not both","help":null,"related":[]}
+{"file":"notetypes/element/notetype.toml","line":10,"column":40,"end_line":10,"end_column":48,"severity":"error","code":"config::unknown-def","message":"`🧪-none` is not in `[schema.defs]`","help":null,"related":[]}
+{"file":"notetypes/element/notetype.toml","line":11,"column":34,"end_line":11,"end_column":53,"severity":"error","code":"config::field-spec","message":"an `object` needs `schema` or `fields`","help":null,"related":[]}

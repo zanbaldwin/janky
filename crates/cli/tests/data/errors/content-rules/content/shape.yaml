@@ -1,0 +1,7 @@
+extra: 1
+defaults:
+  type: 7
+entries:
+  - symbol: '👩‍🔬 no id'
+  - id: 42
+    type: 'metal'

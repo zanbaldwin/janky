@@ -1,0 +1,10 @@
+[deck]
+name = "Call"
+content = ["content/*.yaml"]
+
+[notetypes.element]
+path = "notetypes/element.toml"
+default = true
+
+[plugins.broken]
+path = "plugins/broken.lua"

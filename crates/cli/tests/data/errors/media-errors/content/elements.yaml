@@ -1,0 +1,10 @@
+defaults:
+  image: '🧪-default.png'
+entries:
+  - { id: 'fe', symbol: 'Fe', name: 'iron', image: 'a/⚛️.png' }
+  - { id: 'fe-two', symbol: 'Fe', name: 'ferrum', image: 'b/⚛️.png' }
+  - { id: 'missing', symbol: '∅', name: 'none', image: '👩‍🔬.png' }
+  - { id: 'outside', symbol: 'Og', name: 'outside', image: '../deck.toml' }
+  - { id: 'link', symbol: 'Ln', name: 'link', image: 'link.png' }
+  - { id: 'default-one', symbol: 'H', name: 'hydrogen' }
+  - { id: 'default-two', symbol: 'He', name: 'helium' }

@@ -1,0 +1,6 @@
+{"file":"deck.lock","line":2,"column":11,"end_line":2,"end_column":12,"severity":"error","code":"config::const","message":"`version`: 1 was expected","help":null,"related":[]}
+{"file":"deck.lock","line":3,"column":13,"end_line":3,"end_column":27,"severity":"error","code":"config::pattern","message":"`namespace`: \"⚛️ namespace\" does not match \"^[0-9a-f]{32}$\"","help":null,"related":[]}
+{"file":"deck.lock","line":6,"column":6,"end_line":6,"end_column":8,"severity":"error","code":"config::minimum","message":"`deck.id`: -5 is less than the minimum of 1","help":null,"related":[]}
+{"file":"deck.lock","line":10,"column":1,"end_line":10,"end_column":7,"severity":"error","code":"config::unknown-key","message":"unknown key `presets.metals.colour`","help":null,"related":[]}
+{"file":"deck.lock","line":12,"column":12,"end_line":12,"end_column":19,"severity":"error","code":"config::required","message":"missing key `id` in `notetypes.element`","help":null,"related":[]}
+{"file":"deck.lock","line":13,"column":17,"end_line":13,"end_column":35,"severity":"error","code":"config::type","message":"`notetypes.element.fields.symbol.id`: \"5530912874412097\" is not of type \"integer\"","help":null,"related":[]}

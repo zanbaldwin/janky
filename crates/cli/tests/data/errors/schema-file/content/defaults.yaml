@@ -1,0 +1,7 @@
+defaults:
+  level: 7
+entries:
+  - id: 'h'
+    symbol: 'H'
+  - id: 'he'
+    symbol: 'He'

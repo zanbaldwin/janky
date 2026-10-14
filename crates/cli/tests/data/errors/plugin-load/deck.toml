@@ -1,0 +1,38 @@
+[deck]
+name = "Plugins"
+
+[notetypes.element]
+path = "notetypes/element"
+
+[plugins.good]
+path = "plugins/good.lua"
+
+[plugins.syntax]
+path = "plugins/syntax.lua"
+
+[plugins.runtime]
+path = "plugins/runtime.lua"
+
+[plugins.number]
+path = "plugins/number.lua"
+
+[plugins.table]
+path = "plugins/table.lua"
+
+[plugins.clash]
+path = "plugins/clash.lua"
+
+[plugins.schema]
+path = "plugins/schema.lua"
+
+[plugins.rules]
+path = "plugins/rules.lua"
+
+[plugins.meta]
+path = "plugins/meta.lua"
+
+[plugins.plan]
+path = "plugins/plan.lua"
+
+[plugins.many]
+path = "plugins/many.lua"

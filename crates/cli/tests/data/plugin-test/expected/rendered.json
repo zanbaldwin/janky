@@ -1,0 +1,26 @@
+{
+  "notetypes": {
+    "word": {
+      "css": "",
+      "cards": {
+        "recognition": {
+          "front": "{{Symbol}}\n",
+          "back": "{{Symbol}}\n"
+        }
+      }
+    }
+  },
+  "notes": [
+    {
+      "id": "carbon",
+      "notetype": "word",
+      "fields": {
+        "symbol": "¹²C! A!",
+        "name": "<b>carbon &amp; &lt;diamond&gt;</b>",
+        "notes": "27",
+        "pair": "carbon &amp; &lt;diamond&gt; ¹²C/carbon &amp; &lt;diamond&gt;"
+      }
+    }
+  ],
+  "media": []
+}

@@ -1,0 +1,22 @@
+[deck]
+name = "Network"
+
+[plugins.voice]
+path = "plugins/chem.lua"
+
+[plugins.voice.http]
+allowed_hosts = ["api.example.com", "*.example.org", "127.0.0.1", "localhost", "Bad Host", "https://x.example", "*.com", "-x.example", "0x7f.0.0.1"]
+max_concurrency = 0
+rate_limit = { count = 10, unit = "day" }
+retry = { max_attempts = 3, base_delay_ms = 0, max_delay_ms = 99999999, delay = 5 }
+
+[plugins.voice.secrets]
+api_key = { env = "KEY", file = ".env.local" }
+token = { file = "~/.config/token" }
+empty = {}
+other = { env = "OTHER", command = "pass show x" }
+bad = { env = "A=B", file = "" }
+"we ird" = { env = "X" }
+
+[plugins.voice.filesystem]
+read = { dict = "dict" }

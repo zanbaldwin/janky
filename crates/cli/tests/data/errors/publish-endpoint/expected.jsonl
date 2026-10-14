@@ -1,0 +1,1 @@
+{"file":"deck.toml","line":5,"column":12,"end_line":5,"end_column":38,"severity":"error","code":"config::endpoint","message":"`http://anki.example.org/` must use `https://`","help":null,"related":[]}

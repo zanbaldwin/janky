@@ -1,0 +1,15 @@
+{"file":"deck.toml","line":3,"column":30,"end_line":3,"end_column":41,"severity":"error","code":"content::pattern","message":"invalid pattern: invalid range pattern","help":null,"related":[]}
+{"file":"deck.toml","line":7,"column":12,"end_line":7,"end_column":28,"severity":"error","code":"content::two-decks","message":"`content/a.yaml` already belongs to deck `Rules ⚛️`","help":null,"related":[]}
+{"file":"content/a.yaml","line":2,"column":5,"end_line":2,"end_column":13,"severity":"error","code":"content::required","message":"missing key `symbol` in `entries[0]`","help":null,"related":[]}
+{"file":"content/a.yaml","line":2,"column":5,"end_line":2,"end_column":13,"severity":"error","code":"content::required","message":"missing key `name` in `entries[0]`","help":null,"related":[]}
+{"file":"content/a.yaml","line":4,"column":5,"end_line":4,"end_column":21,"severity":"error","code":"content::required","message":"missing key `type` in `entries[1]`","help":null,"related":[]}
+{"file":"content/a.yaml","line":7,"column":11,"end_line":7,"end_column":22,"severity":"error","code":"content::enum","message":"`entries[2].type`: \"metalloid\" is not one of \"element\", \"metal\" or \"group\"","help":null,"related":[]}
+{"file":"content/b.toml","line":1,"column":1,"end_line":1,"end_column":12,"severity":"error","code":"content::required","message":"missing key `symbol` in `entries[0]`","help":null,"related":[]}
+{"file":"content/b.toml","line":1,"column":1,"end_line":1,"end_column":12,"severity":"error","code":"content::required","message":"missing key `name` in `entries[0]`","help":null,"related":[]}
+{"file":"content/b.toml","line":2,"column":6,"end_line":2,"end_column":10,"severity":"error","code":"content::duplicate-id","message":"entry id `li` is already used at `content/a.yaml:2:9`","help":null,"related":[]}
+{"file":"content/empty.yaml","line":1,"column":1,"end_line":1,"end_column":1,"severity":"error","code":"content::type","message":"null is not of type \"object\"","help":null,"related":[]}
+{"file":"content/not-list.json","line":1,"column":14,"end_line":1,"end_column":27,"severity":"error","code":"content::type","message":"`entries`: {\"id\":\"🧪\"} is not of type \"array\"","help":null,"related":[]}
+{"file":"content/shape.yaml","line":1,"column":1,"end_line":1,"end_column":6,"severity":"error","code":"content::unknown-key","message":"unknown key `extra`","help":null,"related":[]}
+{"file":"content/shape.yaml","line":3,"column":9,"end_line":3,"end_column":10,"severity":"error","code":"content::type","message":"`defaults.type`: 7 is not of type \"string\"","help":"quote the value: '7'","related":[]}
+{"file":"content/shape.yaml","line":5,"column":5,"end_line":5,"end_column":24,"severity":"error","code":"content::required","message":"missing key `id` in `entries[0]`","help":null,"related":[]}
+{"file":"content/shape.yaml","line":6,"column":9,"end_line":6,"end_column":11,"severity":"error","code":"content::type","message":"`entries[1].id`: 42 is not of type \"string\"","help":"quote the value: '42'","related":[]}

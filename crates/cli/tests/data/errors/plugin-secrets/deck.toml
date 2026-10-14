@@ -1,0 +1,15 @@
+[deck]
+name = "Secrets"
+
+[plugins.voice]
+path = "plugins/voice.lua"
+
+[plugins.voice.secrets]
+api_key = { env = "VOICE_KEY" }
+spare = { file = "spare.txt" }
+
+[plugins.quiet]
+path = "plugins/quiet.lua"
+
+[plugins.quiet.http]
+allowed_hosts = ["api.example.com"]

@@ -1,0 +1,21 @@
+name = "Word"
+
+[schema]
+isotope = { type = "string", required = true }
+phase = { type = "string" }
+
+[fields.isotope]
+name = "Isotope"
+
+[fields.name]
+name = "Name"
+value = "{{ enrich(entry.isotope, 'dict').name }}"
+
+[fields.form]
+name = "Form"
+value = "{{ ({'isotope': entry.isotope, 'phase': entry.phase} | enrich('dict')).form }}"
+
+[cards.recognition]
+name = "Recognition"
+front = "cards/front.html"
+back = "cards/front.html"

@@ -1,0 +1,5 @@
+[deck]
+name = "References"
+
+[notetypes.element]
+path = "notetypes/element"
