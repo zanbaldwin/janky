@@ -1,0 +1,37 @@
+diff --git i/rslib/proto/rust.rs w/rslib/proto/rust.rs
+index 85834f1..d4ed42e 100644
+--- i/rslib/proto/rust.rs
++++ w/rslib/proto/rust.rs
+@@ -18,7 +18,9 @@ pub fn write_rust_protos(descriptors_path: PathBuf) -> Result<DescriptorPool> {
+     set_protoc_path();
+     let proto_dir = PathBuf::from("../../proto");
+     let paths = gather_proto_paths(&proto_dir)?;
+-    let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
++    let final_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
++    let out_dir = final_dir.join("raw");
++    create_dir_all(&out_dir)?;
+     let tmp_descriptors = out_dir.join("descriptors.tmp");
+     prost_build::Config::new()
+         .out_dir(&out_dir)
+@@ -61,11 +63,21 @@ pub fn write_rust_protos(descriptors_path: PathBuf) -> Result<DescriptorPool> {
+     write_file_if_changed(descriptors_path, &descriptors)?;
+ 
+     let pool = DescriptorPool::decode(descriptors.as_ref())?;
++    let pkg = env::var("CARGO_PKG_NAME").unwrap();
++    env::set_var("CARGO_PKG_NAME", "spike-no-rerun");
+     add_must_use_annotations(
+         &out_dir,
+         |path| path.file_name().unwrap().starts_with("anki."),
+         |path, name| determine_if_message_is_empty(&pool, path, name),
+     )?;
++    env::set_var("CARGO_PKG_NAME", pkg);
++    for entry in std::fs::read_dir(&out_dir)? {
++        let path = entry?.path();
++        let name = path.file_name().unwrap().to_str().unwrap().to_string();
++        if name.ends_with(".rs") {
++            write_file_if_changed(final_dir.join(name), read_file(&path)?)?;
++        }
++    }
+     Ok(pool)
+ }
+ 

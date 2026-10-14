@@ -1,0 +1,49 @@
+[package]
+name = "janky-cli"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+blake3.workspace = true
+clap.workspace = true
+flate2.workspace = true
+getrandom.workspace = true
+gix.workspace = true
+futures-util.workspace = true
+glob.workspace = true
+indexmap.workspace = true
+janky-anki.workspace = true
+jsonc-parser.workspace = true
+jsonschema.workspace = true
+memchr.workspace = true
+miette.workspace = true
+minijinja.workspace = true
+mlua.workspace = true
+pulldown-cmark.workspace = true
+reqwest.workspace = true
+rusqlite.workspace = true
+rustix.workspace = true
+saphyr.workspace = true
+schemars.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+tar.workspace = true
+tokio.workspace = true
+toml.workspace = true
+unicode-normalization.workspace = true
+url.workspace = true
+zip.workspace = true
+
+[dev-dependencies]
+anki.workspace = true
+pbkdf2 = { version = "0.12", features = ["simple"] }
+tempfile.workspace = true
+tokio.workspace = true
+
+[[bin]]
+name = "janky"
+path = "src/main.rs"

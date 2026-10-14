@@ -1,0 +1,21 @@
+[package]
+name = "janky-anki"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[dependencies]
+anki = { workspace = true, features = ["rustls"] }
+anki_proto.workspace = true
+schemars.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+reqwest = { version = "0.12", default-features = false }
+tempfile.workspace = true
+tokio = { workspace = true, features = ["rt-multi-thread"] }
+zip.workspace = true
+
+[dev-dependencies]
+pbkdf2 = { version = "0.12", features = ["simple"] }
