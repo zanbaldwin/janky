@@ -1,0 +1,275 @@
+:root {
+  --canvas: #faf9f7;
+  --surface: #ffffff;
+  --text: #1f1d1a;
+  --muted: #6b665e;
+  --line: #e2ded7;
+  --accent: #2f5fb3;
+  --selected: #e4ecfa;
+  --error: #b3261e;
+  --warning: #8a5a00;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --canvas: #161513;
+    --surface: #1f1e1b;
+    --text: #ece9e4;
+    --muted: #a39e95;
+    --line: #36332e;
+    --accent: #8db0f0;
+    --selected: #24324a;
+    --error: #f2948c;
+    --warning: #e6b75c;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--text);
+  font: 14px/1.4 system-ui, sans-serif;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: var(--table-width, minmax(320px, 45%)) 7px minmax(0, 1fr);
+  height: 100vh;
+}
+
+aside {
+  overflow: auto;
+  padding: 12px;
+}
+
+.splitter {
+  background: linear-gradient(var(--line), var(--line)) center / 1px 100% no-repeat;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.splitter:hover,
+.splitter:focus-visible,
+.resizing .splitter {
+  outline: none;
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-size: 3px 100%;
+}
+
+.resizing {
+  cursor: col-resize;
+  user-select: none;
+}
+
+.resizing iframe {
+  pointer-events: none;
+}
+
+main {
+  display: flex;
+  min-width: 0;
+  padding: 12px;
+}
+
+input[type="search"] {
+  width: 100%;
+  margin: 8px 0;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+}
+
+.show-empty {
+  display: block;
+  margin-bottom: 8px;
+}
+
+table.cards {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.cards th,
+.cards td {
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.cards th {
+  position: sticky;
+  top: -12px;
+  background: var(--canvas);
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.cards tbody tr {
+  cursor: pointer;
+}
+
+.cards tbody tr:hover {
+  background: var(--surface);
+}
+
+.cards tbody tr[aria-selected="true"] {
+  background: var(--selected);
+}
+
+.cards tr.sample td:nth-child(2),
+.cards tr.sample td:nth-child(3),
+.cards tr.sample td:nth-child(5) {
+  color: var(--muted);
+}
+
+.badge {
+  margin-left: 6px;
+  padding: 0 4px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.badge.error {
+  border-color: var(--error);
+  color: var(--error);
+}
+
+.view {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.view header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.view h2 {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  font-size: 15px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sides button {
+  padding: 4px 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.sides button:first-child {
+  border-radius: 4px 0 0 4px;
+}
+
+.sides button:last-child {
+  border-left: 0;
+  border-radius: 0 4px 4px 0;
+}
+
+.sides button[aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--surface);
+}
+
+.controls {
+  display: flex;
+  flex-shrink: 0;
+  gap: 12px;
+  align-items: center;
+}
+
+.controls select {
+  padding: 3px 4px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+}
+
+.frame {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  min-height: 0;
+}
+
+iframe {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #ffffff;
+}
+
+.frame.android iframe {
+  width: 412px;
+}
+
+.frame.iphone iframe {
+  width: 390px;
+}
+
+.note,
+.stale {
+  margin: 0 0 8px;
+  color: var(--warning);
+}
+
+.card-error,
+.failure {
+  color: var(--error);
+  white-space: pre-wrap;
+}
+
+.loading,
+.failure {
+  padding: 12px;
+}
+
+.diagnostics ul {
+  margin: 4px 0;
+  padding-left: 16px;
+}
+
+.diagnostic {
+  margin-bottom: 6px;
+}
+
+.diagnostic .severity {
+  font-weight: 600;
+}
+
+.diagnostic.error .severity {
+  color: var(--error);
+}
+
+.diagnostic.warning .severity {
+  color: var(--warning);
+}
+
+.diagnostic .where,
+.diagnostic .help {
+  color: var(--muted);
+}

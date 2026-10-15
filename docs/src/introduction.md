@@ -16,6 +16,7 @@ and buttons. With janky, the deck lives in files that you own. You can:
 - reuse one card design for hundreds of notes.
 - get an error that names the file, line and column when you make a typo.
 - see a list of every change before you build.
+- see your cards in your browser while you design them, without an import into Anki.
 - update cards that you already study, without losing your review history.
 
 janky can also run small add-on scripts, called plugins. A plugin can make card content for you, for

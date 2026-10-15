@@ -8,6 +8,9 @@
 //! - `schema` writes the JSON Schemas for editors to `.janky/schema/`, and prints the editor
 //!   settings that use them.
 //! - `update` moves the remote note types in `deck.lock` to their newest commit or hash.
+//! - `preview` serves the cards of the project to the browser on `127.0.0.1`, and writes no files
+//!   (see [`crate::preview`]).
+//! - `show` prints the cards of one entry as text or JSON, and writes no files (see [`crate::show`]).
 //! - `publish` puts the project into the user's collection through their sync server, and
 //!   `pull` gets missing generated media back from it (see [`crate::publish`]).
 //! - `generate` runs the generator jobs, media and data, whose results are not in the cache yet.
@@ -72,12 +75,7 @@ const SCHEMA_DIR: &str = ".janky/schema";
 #[command(name = "janky", version)]
 pub struct Cli {
     /// Path to deck.toml; the project directory is its parent.
-    #[arg(
-        long = "deck",
-        global = true,
-        default_value = "deck.toml",
-        value_name = "PATH TO deck.toml"
-    )]
+    #[arg(long = "deck", global = true, default_value = "deck.toml", value_name = "deck.toml")]
     pub project: PathBuf,
     /// Hide the messages and the plugin log; diagnostics still show.
     #[arg(long, global = true)]
@@ -172,6 +170,41 @@ pub enum Command {
         #[arg(long)]
         delete_removed: bool,
     },
+    /// Show every card of the project in the browser, and write nothing.
+    ///
+    /// Starts a web server on 127.0.0.1 that renders each card with Anki's template renderer.
+    /// Reload the page to read the files again. Generators do not run. Ctrl+C stops the server.
+    Preview {
+        /// The TCP port on 127.0.0.1. 0 lets the operating system choose a port.
+        #[arg(long, default_value_t = 5259)]
+        port: u16,
+    },
+    /// Print the cards of one entry as text, or as JSON with --json, and write nothing.
+    ///
+    /// The identifier is <entry> or <entry>/<card>. Without it, show lists the identifiers. With
+    /// --sample, the identifier names a note type, and show prints its sample note.
+    Show {
+        /// <entry> or <entry>/<card>. With --sample: <notetype> or <notetype>/<card>.
+        identifier: Option<String>,
+        /// Print only one side.
+        #[arg(long, value_enum)]
+        side: Option<crate::show::Side>,
+        /// The typed answer, for a back with {{type:Field}}.
+        #[arg(long, default_value = "")]
+        typed: String,
+        /// The identifier names a note type, and show prints its sample note.
+        #[arg(long)]
+        sample: bool,
+        /// text, or html: one side of one card as a document for a file:/// URL. --json has priority.
+        #[arg(long, value_enum, default_value_t)]
+        format: crate::show::Format,
+        /// The night mode classes on the card, for --format html.
+        #[arg(long)]
+        night: bool,
+        /// The platform classes on the card, for --format html.
+        #[arg(long, value_enum, default_value_t)]
+        platform: crate::preview::Platform,
+    },
     /// Download the missing generated media files from the sync server into the cache.
     ///
     /// For a fresh clone: janky looks for the files of the pending media jobs on the server,
@@ -251,6 +284,7 @@ pub fn run(cli: &Cli) -> ExitCode {
     let mut log = Vec::new();
     let mut shown = None;
     let mut published = None;
+    let mut printed = None;
     match &cli.command {
         Command::Check => {
             if let Some(checked) = check(&cli.project, options, &mut diagnostics, &mut log) {
@@ -281,6 +315,28 @@ pub fn run(cli: &Cli) -> ExitCode {
         Command::Update => update(&cli.project, cli.offline, &mut diagnostics, &mut messages),
         Command::Generate { yes } => generate(cli, *yes, options, &mut diagnostics, &mut messages, &mut log),
         Command::Prune { yes } => prune(cli, *yes, options, &mut diagnostics, &mut messages, &mut log),
+        Command::Show {
+            identifier,
+            side,
+            typed,
+            sample,
+            format,
+            night,
+            platform,
+        } => {
+            let request = crate::show::Request {
+                identifier: identifier.as_deref(),
+                side: *side,
+                typed,
+                sample: *sample,
+                json: cli.json,
+                format: *format,
+                night: *night,
+                platform: *platform,
+            };
+            printed = crate::show::show(&cli.project, options, &request, &mut diagnostics);
+        },
+        Command::Preview { port } => crate::preview::serve(&cli.project, options, *port, &mut diagnostics),
         Command::Pull => crate::publish::pull_media(cli, options, &mut diagnostics, &mut messages, &mut log),
         Command::Publish {
             yes,
@@ -309,6 +365,9 @@ pub fn run(cli: &Cli) -> ExitCode {
         && let Some(json) = published
     {
         println!("{}", json_text(&json));
+    }
+    if let Some(text) = printed {
+        print!("{text}");
     }
     if let Some(prepared) = shown {
         if cli.json {
@@ -847,7 +906,7 @@ fn write_schemas(path: &Path, diagnostics: &mut Diagnostics, messages: &mut Vec<
     let mut schemas = vec![
         ("deck.schema.json", deck_schema(None)),
         ("notetype.schema.json", config::schema_for::<NotetypeFile>()),
-        ("deck.lock.schema.json", config::schema_for::<LockFile>()),
+        ("lock.schema.json", config::schema_for::<LockFile>()),
     ];
     if let Some(project) = &project {
         schemas.push(("content.schema.json", schema::file_schema(project)));
@@ -904,7 +963,7 @@ fn editor_settings(project: Option<&Project>) -> String {
     for (include, schema) in [
         (vec!["deck.toml".to_string()], "deck.schema.json"),
         (notetypes, "notetype.schema.json"),
-        (vec!["deck.lock".to_string()], "deck.lock.schema.json"),
+        (vec!["deck.lock".to_string()], "lock.schema.json"),
         (toml, "content.schema.json"),
     ] {
         if include.is_empty() {

@@ -3,3 +3,5 @@
 /vendor/
 .janky/
 .env
+/crates/cli/ui/dist/
+node_modules/

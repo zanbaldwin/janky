@@ -97,6 +97,11 @@ This page explains the words that this guide uses. Each entry links to the page 
 : The hidden id with which Anki finds an existing note. janky makes it from the entry id, the note
   type key and a random value in `deck.lock`. See [How janky works](../how-it-works.md).
 
+**identifier**
+: The name of one entry or one card for `janky show`: `<entry>` for all cards of an entry, or
+  `<entry>/<card>` for one card, for example `gato/recognition`. `janky show` without an identifier
+  lists them. See [show](../cli/commands.md#show).
+
 **job**
 : One request that a generator must run, for example one audio clip for one word. `janky plan` lists
   the jobs, and `janky generate` runs them. See [Generating media and data](../plugins/generating.md).
@@ -145,6 +150,10 @@ This page explains the words that this guide uses. Each entry links to the page 
 : Anki's deck options preset: new cards a day, reviews a day, learning steps and similar settings.
   See [Presets](../deck/presets.md).
 
+**preview**
+: The command `janky preview`. It starts a small web server that shows each card in your browser.
+  It writes no files. See [preview](../cli/commands.md#preview).
+
 **project**
 : The directory that holds `deck.toml`. All paths in `deck.toml` are relative to this directory. See
   [Project layout](layout.md).
@@ -160,6 +169,11 @@ This page explains the words that this guide uses. Each entry links to the page 
 
 **root deck**
 : The top deck of a project, defined by the `[deck]` table. See [Decks and child decks](../deck/decks.md).
+
+**sample note**
+: A note that `janky preview` and `janky show --sample` make for a note type, with the name of each
+  field in place of its value, for example `(Front)`. Anki shows the same sample in its card layout
+  screen. See [preview](../cli/commands.md#preview).
 
 **schema**
 : A list of the keys and values that a file can have. janky checks your files against schemas.

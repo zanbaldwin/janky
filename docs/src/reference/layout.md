@@ -37,7 +37,7 @@ spanish/
   .janky/                      janky's own directory
     build/spanish.apkg         the package (the default name is deck.apkg)
     schema/                    editor schemas from `janky schema`
-      deck.schema.json  notetype.schema.json  deck.lock.schema.json  content.schema.json
+      deck.schema.json  notetype.schema.json  lock.schema.json  content.schema.json
     cache/
       media/                   generated media: <hash>.<ext> and <hash>.json
       data/                    generated data: <hash>.json

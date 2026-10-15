@@ -7,6 +7,7 @@ license.workspace = true
 publish.workspace = true
 
 [dependencies]
+axum.workspace = true
 blake3.workspace = true
 clap.workspace = true
 flate2.workspace = true
@@ -32,11 +33,15 @@ serde.workspace = true
 serde_json.workspace = true
 sha2.workspace = true
 tar.workspace = true
-tokio.workspace = true
+tokio = { workspace = true, features = ["net"] }
 toml.workspace = true
 unicode-normalization.workspace = true
 url.workspace = true
+vite-chunks.workspace = true
 zip.workspace = true
+
+[build-dependencies]
+vite-chunks.workspace = true
 
 [dev-dependencies]
 anki.workspace = true

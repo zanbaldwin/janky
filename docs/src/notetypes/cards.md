@@ -103,6 +103,19 @@ janky does not check other things in a card template:
 - It accepts `{{cloze:Spanish}}`, but janky note types are not cloze note types, so this has no
   use.
 
+## See the rendered cards
+
+`janky check` checks the card templates, but Anki renders them, so `check` cannot show you a
+card. To see the rendered cards, use one of these commands:
+
+- `janky preview` shows each card in your browser, with Anki's template code. It marks a card with
+  an empty front with the label `empty`.
+- `janky show <entry>` prints the cards of one entry in the terminal, for example
+  `janky show gato`.
+
+Both commands use the same template code as Anki, so a card looks as it does in Anki. See
+[preview](../cli/commands.md#preview) and [show](../cli/commands.md#show).
+
 ## Cards that only some notes get
 
 By default, every note gets one card of each card type. Add `when` to a card type to give the card

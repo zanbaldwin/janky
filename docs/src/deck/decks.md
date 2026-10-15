@@ -178,16 +178,17 @@ keeps the file. The error points at the pattern of the later deck.
 
 ### The order of new cards
 
-janky reads all content files of the project in the order of their paths, across all decks. This
-order is also the order of new cards in Anki. In the tutorial, `content/phrases/...` comes before
-`content/vocab/...`, so the phrases get the first new-card positions.
+The new cards follow the decks in the order of `deck.toml`, with a parent deck before its child
+decks. Inside a deck, they follow the `content` patterns in the order of the list. The files that
+one pattern finds follow the order of their paths. In the tutorial, the vocabulary deck comes first,
+so the vocabulary gets the first new-card positions.
 
 The root deck key `new_order` sets the order inside each file:
 
 | Value | Meaning |
 |-------|---------|
 | `"file"` (default) | The entries keep their order in the file. |
-| `"shuffle-in-file"` | janky shuffles the entries of each file. The files stay in path order. |
+| `"shuffle-in-file"` | janky shuffles the entries of each file. The files keep their order. |
 
 Use `"shuffle-in-file"` if each content file is one lesson. You then learn the lessons in order,
 but the entries of one lesson come in a mixed order.

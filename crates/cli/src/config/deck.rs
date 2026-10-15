@@ -340,7 +340,7 @@ pub struct RootDeck {
     pub media_dirs: Vec<String>,
     #[schemars(
         title = r#"New card order"#,
-        description = r#"The order of new cards inside one content file. Root deck only. The files stay in path order. `file`: the entry order in the file. `shuffle-in-file`: a fixed order from a hash of each note's GUID. Anki keeps the position of cards that it already has. Default: `file`."#
+        description = r#"The order of new cards inside one content file. Root deck only. The files stay in deck order, then pattern order, then path order. `file`: the entry order in the file. `shuffle-in-file`: a fixed order from a hash of each note's GUID. Anki keeps the position of cards that it already has. Default: `file`."#
     )]
     #[serde(default)]
     pub new_order: NewOrder,

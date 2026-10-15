@@ -215,6 +215,26 @@ with `error: the plugin call`, without a code. See
 | `publish::apply` | E | janky cannot apply the project to its copy. It sent nothing. | Read the message. The next run downloads the collection again. |
 | `publish::media` | W, E | The media sync or a media download failed, or a file from the server does not match `deck.lock`. A warning when the cache already has the file without its metadata, or when the server did not send all files. | Run the command again. janky does not store a file that does not match `deck.lock`. |
 
+## Preview: `preview`
+
+| Code | Sev. | Meaning | Typical fix |
+|------|------|---------|-------------|
+| `preview::bind` | E | janky cannot listen on the port, for example because another program uses it. | Stop the other program, or use another port with `--port`. |
+| `preview::serve` | E | The preview server stopped because of an error. | Read the message, then start `janky preview` again. |
+| `preview::render` | E | Anki rejects a card template, for example a `{{#Field}}` without `{{/Field}}`. The page shows the last cards that rendered. | Fix the card template that the message names, then reload the page. |
+
+## Show: `show`
+
+| Code | Sev. | Meaning | Typical fix |
+|------|------|---------|-------------|
+| `show::unknown-entry` | E | No entry has the id. An entry with errors is left out. | Run `janky show` to list the identifiers. Fix the errors of the entry. |
+| `show::unknown-card` | E | The note type of the entry, or the note type of `--sample`, has no card type with the key after the `/`. | Use a card key from the help line. |
+| `show::unknown-notetype` | E | `--sample` names a note type that `deck.toml` does not have. | Use a note type key from the help line. |
+| `show::render` | E | Anki rejects a card template, for example a `{{#Field}}` without `{{/Field}}`. | Fix the card template that the message names. |
+| `show::one-side` | E | `--format html` has no `--side`, or the identifier names more than one card. | Add `--side front` or `--side back`, and the card key, for example `gato/recognition`. |
+| `show::no-ui` | E | `--format html` needs the preview UI, and this janky was built without it. | Run `just assets`, then build janky again. |
+| `show::mathjax` | W | The side has `\(` or `\[`, and MathJax does not run in the HTML output. The maths shows as TeX. | Use `janky preview` to see the maths. |
+
 ## Writing files: `build`, `update`, `schema`
 
 | Code | Sev. | Meaning | Typical fix |

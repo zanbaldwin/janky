@@ -13,7 +13,7 @@ janky [flags] <command> [flags]
 The general flags (`--deck`, `--quiet`, `--verbose`, `--json`, `--offline` and `--allow-missing`) can go
 before or after the command name. `--yes` belongs to `generate`, `prune` and `publish` only, so it
 must come after the command name: `janky generate --yes`. The other flags of `publish` also come
-after its name.
+after its name, and so do `--port` of `preview` and the flags of `show`.
 
 `janky --help` lists the commands and flags. `janky <command> --help` shows the help of one command,
 for example `janky generate --help`. `janky --version` prints the version.
@@ -25,6 +25,8 @@ for example `janky generate --help`. `janky --version` prints the version.
 | [`check`](#check) | Finds errors in all project files | Nothing |
 | [`plan`](#plan) | Shows what the next build changes, and the missing generator jobs | Nothing |
 | [`build`](#build) | Writes the package | The `.apkg` file and `deck.lock` |
+| [`preview`](#preview) | Shows each card in your browser | Nothing |
+| [`show`](#show) | Prints the cards of one entry as text, JSON or HTML | Nothing |
 | [`schema`](#schema) | Writes schema files for your code editor | `.janky/schema/` |
 | [`update`](#update) | Moves remote note types to their newest commit | `deck.lock` (the source records only) |
 | [`generate`](#generate) | Runs the generator jobs | `.janky/cache/` |
@@ -155,6 +157,154 @@ To continue, do these steps:
 1. Delete `deck.lock.tmp`. Do not delete `deck.lock`.
 2. Run `janky build` again.
 
+## preview
+
+`janky preview` starts a small web server that shows each card of the project in your browser. Use
+it while you design a note type. You see a change without a build, an import into Anki and a study
+session.
+
+```console
+$ janky preview
+Preview at http://127.0.0.1:5259/ — reload the page to read the files again, press Ctrl+C to stop
+```
+
+Open the address in your browser. The page has two parts:
+
+- On the left, a table has one row for each card: the note type, the entry, the deck, the card type
+  and the source. The source is the content file and the position of the entry in it, from 0, for
+  example `content/vocab/01-basics.yaml #2`. The rows are in the order of the new cards in the
+  package (see [The order of new cards](../deck/decks.md#the-order-of-new-cards)). Type in the
+  filter field to find a card. Clear **Show empty cards** to hide the cards with an empty front.
+- On the right, the page shows the selected card. Use **Front** and **Back** to turn the card. Use
+  **Night mode** to see the night colours, and the platform menu to see the card at the width of a
+  phone.
+
+To change the widths of the two parts, drag the line between them. Your browser keeps the width.
+
+To see a change, save the file and reload the page (Ctrl+R or F5). Each reload reads all files
+again. The page keeps the selected card and the settings. janky does not watch the files.
+
+Errors and warnings show above the table. If the project does not load, the page keeps the cards of
+the last load that worked, and a note above the table says so.
+
+Press Ctrl+C in the terminal to stop the server.
+
+### What the preview shows
+
+- janky renders each card with the template code of Anki, so the HTML is the same as in Anki.
+- The card gets the same classes as in Anki, for example `card card1` and `nightMode`. See
+  [See your cards in the browser](../notetypes/styling.md#see-your-cards-in-the-browser).
+- The JavaScript of the card runs as in the reviewer of Anki, with `onUpdateHook`, `onShownHook`
+  and `pycmd`. Code that waits for `DOMContentLoaded` does not run, as in Anki.
+- MathJax shows `\(…\)` and `\[…\]`. LaTeX (`[latex]`, `[$]` and `[$$]`) shows as plain text,
+  because it needs a LaTeX program.
+- A play button plays each sound. Text to speech uses the speech voices of your browser.
+- `{{type:Field}}` shows an input. Type your answer and press Enter. The back compares your answer
+  with the field, as in Anki.
+- A card with an empty front has the label `empty`. Anki does not make this card, for example
+  because the `when` condition of the card type does not apply to the entry. To hide these rows,
+  clear **Show empty cards**.
+- A note type that no entry uses gets one row for each card type, with N/A as the entry and the deck.
+  Each field shows its name, for example `(Front)`, as in the card layout screen of Anki.
+
+### What the preview does not do
+
+- It writes no files. It does not write `deck.lock`, the package or `.janky/`.
+- It does not run generators. Missing generated media and data show as in `check`.
+- It does not show answer buttons, scheduling or image occlusion. It does not have add-on filters,
+  jQuery or the JavaScript API of AnkiDroid.
+- It does not play sounds automatically.
+
+### The server
+
+- The server listens only on `127.0.0.1`, so other computers cannot connect to it. It refuses a
+  request for another host name.
+- To use another port, give `--port`, for example `janky preview --port 8080`. `--port 0` lets your
+  system choose a free port. If the port is in use, janky stops with `preview::bind`.
+- The JavaScript of a card runs in a sandbox. It cannot read the page or the other cards.
+- If a plugin runs longer than its time limit, janky stops, and the server stops too. See
+  [The sandbox](../authoring/sandbox.md).
+
+> [!NOTE]
+> The preview needs the web page files that `just setup` builds. A janky that you built without
+> them shows a message in place of the page. See [Installation](../installation.md).
+
+## show
+
+`janky show` prints the cards of one entry and stops. It is for AI agents and scripts that make or
+change a deck: they can read a card without a browser. It renders the cards in the same way as
+`janky preview`, and it writes no files.
+
+Give an identifier: `<entry>` for all cards of an entry, or `<entry>/<card>` for one card. The
+card is the key of a card type in the note type file.
+
+```console
+$ janky show gato/recognition
+gato/recognition · Spanish Word · Recognition · content/vocab/01-basics.yaml #2
+front: el gato
+back: el gato cat ...
+```
+
+- Without an identifier, `janky show` lists all identifiers, one on each line, in the order of the
+  preview table.
+- With `--sample`, the identifier is a note type key, or `<notetype>/<card>`. janky shows the sample
+  note of that note type, with the name of each field in place of its value.
+- If no entry has the id, janky stops with `show::unknown-entry`. An entry with errors is not shown.
+- If the entry has no card type with the key, janky stops with `show::unknown-card` and lists the
+  card types.
+
+An entry id can contain `/` if its schema allows any text. janky first looks for an entry with the
+whole identifier as its id, and only then splits the identifier at the last `/`.
+
+### The text output
+
+Each card has a header line, then one line for each side:
+
+- The header has the identifier, the note type, the card type and the source of the entry.
+- A sound shows as `[sound:<file>]`, and text to speech as `[tts <language>: <text>]`.
+- An image shows as its file name.
+- The input of `{{type:Field}}` shows as `[type answer]`. `--typed` gives the typed answer that the
+  back compares.
+- A card with an empty front gets the line `empty: Anki does not make this card`.
+
+### The JSON output
+
+With `--json`, the diagnostics come first, then one line with the cards:
+
+```json
+{"cards":[{"id":"gato/recognition","notetype":{"key":"word","name":"Spanish Word"},"entry":{"id":"gato","file":"content/vocab/01-basics.yaml","index":2},"deck":{"key":"vocab","full_name":"Spanish::1 Vocabulary"},"card":{"key":"recognition","name":"Recognition","ord":0},"css":"…","empty":false,"error":null,"front":{"html":"…","text":"…","sounds":[…]},"back":{…},"type_answer":null}]}
+```
+
+Each side has the HTML, the text and the sounds. With `--side`, the other side is `null`. Without
+an identifier, the line is `{"identifiers":[…]}`.
+
+### The HTML output
+
+`--format html` prints one side of one card as an HTML document. The document needs no server: it
+has the CSS and the JavaScript of the preview in it, and it refers to the media files with
+`file://` URLs. So you can save it to a file and open it with a browser, also a headless browser:
+
+```console
+$ janky show gato/recognition --side back --format html --platform iphone > /tmp/card.html
+$ chromium --headless --screenshot=/tmp/card.png --window-size=390,800 file:///tmp/card.html
+```
+
+- Give `--side front` or `--side back`, and an identifier for one card. Otherwise janky stops with
+  `show::one-side`.
+- `--night` and `--platform` set the same classes as the controls of the preview. The browser sets
+  the width: use 412 pixels for `android` and 390 pixels for `iphone`.
+- MathJax does not run in this document, because the browser does not load its fonts from a
+  `file:///` page. The maths shows as TeX, and janky gives the warning `show::mathjax`.
+
+| Flag | What it does |
+|------|--------------|
+| `--side <front\|back>` | Shows only one side. `--format html` needs it. |
+| `--format <text\|html>` | The output without `--json`. The default is `text`. |
+| `--typed <text>` | The typed answer, for a back with `{{type:Field}}`. |
+| `--night` | The night classes, for `--format html`. |
+| `--platform <desktop\|android\|iphone>` | The platform classes, for `--format html`. The default is `desktop`. |
+| `--sample` | The identifier names a note type, and janky shows its sample note. |
+
 ## schema
 
 `janky schema` writes JSON Schema files into `.janky/schema/`. A JSON Schema file describes which
@@ -162,14 +312,14 @@ keys and values a file can have. Many code editors read these files. The editor 
 keys and mark errors while you type.
 
 `schema` reads `deck.toml`, the note types and the plugins, but not the content files. It writes
-`deck.schema.json`, `notetype.schema.json`, `deck.lock.schema.json` and, if the project loads,
+`deck.schema.json`, `notetype.schema.json`, `lock.schema.json` and, if the project loads,
 `content.schema.json`. Then it prints the settings to add to your editor:
 
 ```console
 $ janky schema
 wrote .janky/schema/deck.schema.json
 wrote .janky/schema/notetype.schema.json
-wrote .janky/schema/deck.lock.schema.json
+wrote .janky/schema/lock.schema.json
 wrote .janky/schema/content.schema.json
 
 Add to .taplo.toml next to deck.toml:
@@ -187,7 +337,7 @@ path = ".janky/schema/notetype.schema.json"
 [[rule]]
 include = ["deck.lock"]
 [rule.schema]
-path = ".janky/schema/deck.lock.schema.json"
+path = ".janky/schema/lock.schema.json"
 
 [[rule]]
 include = ["content/phrases/*.toml"]
@@ -421,7 +571,7 @@ explains it in full.
 
 | Flag | Default | What it does |
 |------|---------|--------------|
-| `--deck <path>` | `deck.toml` | The path to the `deck.toml` file (not to the directory). The project directory is the directory of that file. |
+| `--deck <deck.toml>` | `deck.toml` | The path to the `deck.toml` file (not to the directory). The project directory is the directory of that file. |
 | `--quiet` | off | Hides the messages. Errors and warnings still appear. |
 | `--verbose` | off | Shows each info in full. Without it, the infos of one code show as one line with a count. |
 | `--json` | off | Prints errors, warnings and infos as JSON Lines on standard output. |
@@ -431,19 +581,21 @@ explains it in full.
 | `--dry-run` | off | `publish` only: shows the plan and changes nothing on the server. |
 | `--allow-full-sync` | off | `publish` only: allows a schema change. |
 | `--delete-removed` | off | `publish` only: deletes the notes of removed entries. |
+| `--port <port>` | `5259` | `preview` only: the port of the server on `127.0.0.1`. `0` lets your system choose a free port. |
+| `--side`, `--format`, `--typed`, `--night`, `--platform`, `--sample` | – | `show` only. See [show](#show). |
 
 ### How each flag applies to each command
 
 Some flags do less than their names suggest. This table shows where each flag has an effect.
 
-| Flag | `check` | `plan` | `build` | `schema` | `update` | `generate` | `prune` | `publish` | `pull` |
-|------|---------|--------|---------|----------|----------|------------|---------|-----------|--------|
-| `--quiet` | Hides `N notes are valid` | No effect (the plan is not a message) | Hides the plan, the `wrote` line and the FSRS line | Hides the `wrote` lines and the editor settings | Hides the messages, for example `No remote note types.` | Hides the progress lines and the total, but not the summary | Hides the messages, for example `Nothing to prune.` | Hides the plan and the messages, but not the question | Hides the messages |
-| `--verbose` | Full infos | Full infos | Full infos | Full infos | Full infos | Full infos | Full infos | Full infos | Full infos |
-| `--json` | JSON diagnostics | JSON diagnostics and one plan line. No plan text | JSON diagnostics and one plan line. The plan text still goes to standard error | JSON diagnostics | JSON diagnostics | JSON diagnostics | JSON diagnostics | JSON diagnostics and one `publish` line. The plan text still goes to standard error | JSON diagnostics |
-| `--offline` | Remote note types from the cache | Remote note types from the cache | Remote note types from the cache | Ignored: `schema` can still fetch remote note types | Dry run | Remote note types from the cache. Generators still use the network | Remote note types from the cache | Remote note types from the cache. The sync still uses the network | Remote note types from the cache. The download still uses the network |
-| `--allow-missing` | No effect | No effect | Missing results are warnings | No effect | No effect | No effect | Runs while jobs are missing | Missing results are warnings | No effect |
-| `--yes` | – | – | – | – | – | Skips the question | Skips the question | Skips the question | – |
+| Flag | `check` | `plan` | `build` | `schema` | `update` | `generate` | `prune` | `publish` | `pull` | `preview` | `show` |
+|------|---------|--------|---------|----------|----------|------------|---------|-----------|--------|-----------|--------|
+| `--quiet` | Hides `N notes are valid` | No effect (the plan is not a message) | Hides the plan, the `wrote` line and the FSRS line | Hides the `wrote` lines and the editor settings | Hides the messages, for example `No remote note types.` | Hides the progress lines and the total, but not the summary | Hides the messages, for example `Nothing to prune.` | Hides the plan and the messages, but not the question | Hides the messages | No effect: the address always shows | No effect: the output is not a message |
+| `--verbose` | Full infos | Full infos | Full infos | Full infos | Full infos | Full infos | Full infos | Full infos | Full infos | No effect: the page shows each info in full | Full infos |
+| `--json` | JSON diagnostics | JSON diagnostics and one plan line. No plan text | JSON diagnostics and one plan line. The plan text still goes to standard error | JSON diagnostics | JSON diagnostics | JSON diagnostics | JSON diagnostics | JSON diagnostics and one `publish` line. The plan text still goes to standard error | JSON diagnostics | JSON diagnostics of the start only. The page shows the other diagnostics | JSON diagnostics and one `cards` line. `--format` has no effect |
+| `--offline` | Remote note types from the cache | Remote note types from the cache | Remote note types from the cache | Ignored: `schema` can still fetch remote note types | Dry run | Remote note types from the cache. Generators still use the network | Remote note types from the cache | Remote note types from the cache. The sync still uses the network | Remote note types from the cache. The download still uses the network | Remote note types from the cache | Remote note types from the cache |
+| `--allow-missing` | No effect | No effect | Missing results are warnings | No effect | No effect | No effect | Runs while jobs are missing | Missing results are warnings | No effect | No effect | No effect |
+| `--yes` | – | – | – | – | – | Skips the question | Skips the question | Skips the question | – | – | – |
 
 A dash means that the flag does not apply to that command.
 

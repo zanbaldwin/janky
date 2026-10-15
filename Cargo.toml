@@ -13,6 +13,7 @@ publish = false
 [workspace.dependencies]
 anki = { git = "https://github.com/ankitects/anki", tag = "26.08.1" }
 anki_proto = { git = "https://github.com/ankitects/anki", tag = "26.08.1" }
+axum = { version = "0.8", default-features = false, features = ["http1", "query", "tokio"] }
 blake3 = { version = "1.8", default-features = false, features = [
     "std",
     "pure",
@@ -41,6 +42,7 @@ reqwest = { version = "0.13", default-features = false, features = [
     "blocking",
     "rustls",
 ] }
+regex = "1"
 rusqlite = { version = "0.36.0", features = ["bundled"] }
 rustix = { version = "1.1", features = ["fs"] }
 pulldown-cmark = { version = "0.13.4", default-features = false, features = [
@@ -57,6 +59,7 @@ toml = { version = "1.1", features = ["preserve_order"] }
 tokio = { version = "1.45", features = ["io-util", "rt", "time", "sync"] }
 unicode-normalization = "0.1.25"
 url = "2.5"
+vite-chunks = { path = "crates/vite" }
 zip = { version = "9", default-features = false, features = ["deflate-flate2"] }
 
 [patch."https://github.com/ankitects/anki"]

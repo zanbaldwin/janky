@@ -6,7 +6,8 @@
 //! package back into a fresh collection, so that tests can check what Anki actually stores.
 //! A [`Session`] syncs a copy of the user's collection with a sync server (see [`open_copy`]),
 //! [`diff()`] shows what [`apply()`] would change in that copy, and `apply` writes a package into
-//! it.
+//! it. [`render()`] renders the cards of a package with Anki's template renderer, for the preview, and
+//! [`compare_typed`] compares a typed answer as Anki's reviewer does.
 //!
 //! The ids in a [`Package`] are kept exactly. Anki must not assign its own ids, because the
 //! next build of the same deck has to update the same notes, decks and presets. A write fails
@@ -30,13 +31,17 @@ mod apply;
 mod diff;
 mod import;
 mod preset;
+mod render;
 mod sync;
+mod type_answer;
 
 pub use apply::{Applied, Apply, apply};
 pub use diff::{Diff, diff};
 pub use import::{ImportOptions, Imported, ImportedNote, ImportedNotetype, import};
 pub use preset::{LeechAction, NewGatherOrder, NewSortOrder, PresetOptions, ReviewMix, ReviewSortOrder};
+pub use render::{Rendered, RenderedCard, RenderedSide, Sound, html_to_text, render};
 pub use sync::{MEDIA_LIMIT, Pulled, Pushed, Session, open_copy};
+pub use type_answer::{TypeAnswer, compare_typed};
 
 const DEFAULT_PRESET: i64 = 1;
 
@@ -197,7 +202,7 @@ pub fn open(dir: &Path) -> Result<Collection> {
 pub fn write_apkg(package: &Package, out: &Path) -> Result<usize> {
     let work = tempfile::tempdir().map_err(fail)?;
     let mut col = open(work.path())?;
-    write_collection(&mut col, package)?;
+    write_collection(&mut col, package, true)?;
     col.close(None).map_err(fail)?;
 
     let mut col = open(work.path())?;
@@ -216,7 +221,7 @@ pub fn write_apkg(package: &Package, out: &Path) -> Result<usize> {
     Ok(count)
 }
 
-fn write_collection(col: &mut Collection, package: &Package) -> Result<()> {
+fn write_collection(col: &mut Collection, package: &Package, with_media: bool) -> Result<()> {
     for notetype in &package.notetypes {
         let mut anki = AnkiNotetype {
             id: NotetypeId(notetype.id),
@@ -239,7 +244,8 @@ fn write_collection(col: &mut Collection, package: &Package) -> Result<()> {
         }
         anki.config.css = notetype.css.clone();
         anki.config.sort_field_idx = notetype.sort_field;
-        col.add_or_update_notetype_with_existing_id(&mut anki, false).map_err(fail)?;
+        col.add_or_update_notetype_with_existing_id(&mut anki, false)
+            .map_err(|error| Error(error.message(col.tr()).replace("<br>", " ")))?;
         col.storage
             .db()
             .execute("update notetypes set mtime_secs = ? where id = ?", (notetype.modified, notetype.id))
@@ -275,11 +281,14 @@ fn write_collection(col: &mut Collection, package: &Package) -> Result<()> {
         }
     }
 
-    for media in &package.media {
-        let bytes = std::fs::read(&media.path).map_err(|error| Error(format!("{}: {error}", media.path.display())))?;
-        let stored = col.media().map_err(fail)?.add_file(&media.name, &bytes).map_err(fail)?;
-        if stored != media.name {
-            return Err(Error(format!("Anki stored media file `{}` as `{stored}`", media.name)));
+    if with_media {
+        for media in &package.media {
+            let bytes =
+                std::fs::read(&media.path).map_err(|error| Error(format!("{}: {error}", media.path.display())))?;
+            let stored = col.media().map_err(fail)?.add_file(&media.name, &bytes).map_err(fail)?;
+            if stored != media.name {
+                return Err(Error(format!("Anki stored media file `{}` as `{stored}`", media.name)));
+            }
         }
     }
 

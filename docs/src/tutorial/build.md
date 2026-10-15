@@ -15,6 +15,22 @@ $ janky check
 `check` reads every file of the project and reports all the errors that it finds. It writes no
 files. Run it each time you change a file.
 
+## Look at the cards
+
+This step is optional. Run `janky preview`:
+
+```console
+$ janky preview
+Preview at http://127.0.0.1:5259/ — reload the page to read the files again, press Ctrl+C to stop
+```
+
+Open the address in your browser. The table on the left has one row for each card. Click a row to
+see the card, and use **Front** and **Back** to turn it. The `gato` entry has no `production` key,
+so its Production card has the label `empty`: Anki does not make that card.
+
+Change `style.css`, save it, and reload the page to see the new colours. Press Ctrl+C in the
+terminal when you are done. [preview](../cli/commands.md#preview) explains the page in full.
+
 ## Plan the build
 
 Run `janky plan`:

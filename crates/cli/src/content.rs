@@ -28,6 +28,8 @@ pub struct ContentFile {
     /// The keys of the child decks from the root deck down to the deck of this file. Empty for the
     /// root deck.
     pub deck: Vec<String>,
+    /// The index of the first pattern in the `content` of its deck that matches this file.
+    pub pattern: usize,
     /// The parsed file, with `defaults` merged into each entry. The spans of a copied value point
     /// into `defaults`.
     pub tree: Tree,
@@ -52,6 +54,7 @@ struct Match {
     deck: Vec<String>,
     deck_name: String,
     pattern: String,
+    index: usize,
 }
 
 /// Loads every content file of every deck, in the order of their paths.
@@ -180,6 +183,7 @@ fn find_files(
                             deck: keys.clone(),
                             deck_name: deck_name.to_string(),
                             pattern: pattern_pointer.clone(),
+                            index,
                         },
                     );
                 },
@@ -290,6 +294,7 @@ impl Loader<'_> {
         Some(ContentFile {
             path: path.to_string(),
             deck: found_match.deck,
+            pattern: found_match.index,
             tree,
             entries,
         })

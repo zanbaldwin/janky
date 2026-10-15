@@ -9,8 +9,9 @@
 //! fields of its note type. Each note gets a deck tag in addition to its `tags`: `deck` for the
 //! root deck, or the deck key path after `deck::` (for example `deck::lessons::basics`).
 //!
-//! Anki gives new cards their position in the order of the notes. The notes follow the
-//! content files in path order. Inside a file, they keep the entry order, or with
+//! Anki gives new cards their position in the order of the notes. The notes follow the decks in
+//! the order of `deck.toml` (a parent before its children), then the `content` patterns of each
+//! deck, then the paths of the content files. Inside a file, they keep the entry order, or with
 //! `new_order = "shuffle-in-file"` they are sorted by a hash of their GUID.
 
 use std::collections::HashMap;
@@ -49,6 +50,21 @@ pub fn package(
     rendered: &Rendered,
     lock: &mut LockFile,
     now: i64,
+    diagnostics: &mut Diagnostics,
+) -> Option<Package> {
+    package_with(project, files, rendered, lock, now, true, diagnostics)
+}
+
+/// [`package`], but without `hash_media` it does not read the media files. The media table of `lock` then stays as
+/// it is, and an unreadable media file is no error. `janky preview` uses this, because it runs on each page load and
+/// writes no lock file.
+pub fn package_with(
+    project: &Project,
+    files: &[ContentFile],
+    rendered: &Rendered,
+    lock: &mut LockFile,
+    now: i64,
+    hash_media: bool,
     diagnostics: &mut Diagnostics,
 ) -> Option<Package> {
     lock.update(project);
@@ -156,6 +172,7 @@ pub fn package(
         });
     }
 
+    let ranks = file_ranks(project, files);
     let mut origins = HashMap::new();
     for (index, file) in files.iter().enumerate() {
         for entry in &file.entries {
@@ -166,7 +183,7 @@ pub fn package(
                 .and_then(Value::as_array)
                 .map(|tags| tags.iter().filter_map(Value::as_str).map(str::to_string).collect())
                 .unwrap_or_else(Vec::new);
-            origins.insert(entry.id.as_str(), (index, file.deck.clone(), tags));
+            origins.insert(entry.id.as_str(), (ranks[index], file.deck.clone(), tags));
         }
     }
     let mut notes = Vec::new();
@@ -203,32 +220,36 @@ pub fn package(
     for (note, modified) in notes.iter_mut().zip(lock.stamp_notes(hashes, now)) {
         note.modified = modified;
     }
-    if project.deck.deck.new_order == NewOrder::ShuffleInFile {
-        let mut keyed: Vec<_> = note_files
-            .into_iter()
-            .zip(notes)
-            .map(|(file, note)| (file, lock::content_hash([note.guid.as_str()]), note))
-            .collect();
-        keyed.sort_by(|a, b| (a.0, &a.1).cmp(&(b.0, &b.1)));
-        notes = keyed.into_iter().map(|(_, _, note)| note).collect();
-    }
+    let shuffle = project.deck.deck.new_order == NewOrder::ShuffleInFile;
+    let mut keyed: Vec<_> = note_files
+        .into_iter()
+        .zip(notes)
+        .map(|(file, note)| (file, shuffle.then(|| lock::content_hash([note.guid.as_str()])), note))
+        .collect();
+    keyed.sort_by(|a, b| (a.0, &a.1).cmp(&(b.0, &b.1)));
+    notes = keyed.into_iter().map(|(_, _, note)| note).collect();
 
     let mut media = Vec::new();
     let mut hashes = IndexMap::new();
     for file in &rendered.media {
         let path = project.root.join(&file.path);
-        match std::fs::read(&path) {
-            Ok(bytes) => {
-                hashes.insert(file.name.clone(), LockedMedia { hash: lock::file_hash(&bytes) });
-            },
-            Err(error) => {
-                diagnostics.push(Diagnostic::error("build::media", format!("cannot read `{}`: {error}", file.path)));
-                return None;
-            },
+        if hash_media {
+            match std::fs::read(&path) {
+                Ok(bytes) => {
+                    hashes.insert(file.name.clone(), LockedMedia { hash: lock::file_hash(&bytes) });
+                },
+                Err(error) => {
+                    diagnostics
+                        .push(Diagnostic::error("build::media", format!("cannot read `{}`: {error}", file.path)));
+                    return None;
+                },
+            }
         }
         media.push(Media { name: file.name.clone(), path });
     }
-    lock.media = hashes;
+    if hash_media {
+        lock.media = hashes;
+    }
     Some(Package { notetypes, presets, decks, notes, media })
 }
 
@@ -243,6 +264,29 @@ fn collect_decks(deck: &Deck, locked: &LockedDeck, full_name: &str, lock: &LockF
         let name = format!("{full_name}::{}", child_deck.name);
         collect_decks(child_deck, &locked.children[key], &name, lock, out);
     }
+}
+
+/// The rank of each content file in the order of the notes: the decks in the order of `deck.toml` (a parent before
+/// its children), then the `content` patterns of the deck, then the path.
+fn file_ranks(project: &Project, files: &[ContentFile]) -> Vec<usize> {
+    let mut decks = HashMap::new();
+    let mut stack = vec![(Vec::new(), &project.deck.deck.deck)];
+    while let Some((keys, deck)) = stack.pop() {
+        for (key, child) in deck.children.iter().rev() {
+            stack.push(([keys.as_slice(), std::slice::from_ref(key)].concat(), child));
+        }
+        decks.insert(keys, decks.len());
+    }
+    let mut order: Vec<usize> = (0..files.len()).collect();
+    order.sort_by_key(|&index| {
+        let file = &files[index];
+        (decks.get(&file.deck).copied().unwrap_or(usize::MAX), file.pattern, &file.path)
+    });
+    let mut ranks = vec![0; files.len()];
+    for (rank, index) in order.into_iter().enumerate() {
+        ranks[index] = rank;
+    }
+    ranks
 }
 
 fn deck_id(root: &LockedDeck, keys: &[String]) -> i64 {

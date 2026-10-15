@@ -118,14 +118,18 @@ patterns to give your editor the list of valid keys (see the
 
 ## File order is the order of new cards
 
-janky reads the content files of the whole project in the order of their paths. It reads the
-entries of each file from top to bottom. Anki shows new cards in this order.
+janky gives new cards their positions in this order:
 
-The order uses the full path of each file, and not the order of the decks in `deck.toml`. In the
-tutorial, `content/phrases/01-greetings.toml` comes before `content/vocab/01-basics.yaml`. So the
-phrases get the first new-card positions, although the vocabulary deck is first in `deck.toml`.
+1. The decks, in the order of `deck.toml`. A parent deck comes before its child decks.
+2. The `content` patterns of each deck, in the order of the list.
+3. The files that one pattern finds, in the order of their paths.
+4. The entries of each file, from top to bottom (see [`new_order`](../deck/decks.md#the-order-of-new-cards)).
 
-The sort compares characters by their code, not like a dictionary:
+In the tutorial, the vocabulary deck is first in `deck.toml`. So `content/vocab/01-basics.yaml`
+gets the first new-card positions, although `content/phrases/01-greetings.toml` comes first in
+path order.
+
+The path sort compares characters by their code, not like a dictionary:
 
 - Uppercase letters come before lowercase letters (`Z.yaml` before `a.yaml`).
 - `10.yaml` comes before `2.yaml`.

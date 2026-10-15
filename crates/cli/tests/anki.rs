@@ -62,8 +62,10 @@ fn example_package_imports_into_anki_and_stays_stable() {
 
     let ids: Vec<&str> = rendered.notes.iter().map(|note| note.id.as_str()).collect();
     assert_eq!(ids, ["alkali-metals", "halogens", "li", "water", "c", "fe", "au"]);
-    for (rendered_note, note) in rendered.notes.iter().zip(&first.notes) {
-        assert_eq!(note.guid, lock::guid(&lock.namespace, &rendered_note.notetype, &rendered_note.id));
+    let package_order = ["li", "water", "c", "fe", "au", "alkali-metals", "halogens"];
+    for (id, note) in package_order.iter().zip(&first.notes) {
+        let rendered_note = rendered.notes.iter().find(|rendered_note| rendered_note.id == *id).unwrap();
+        assert_eq!(note.guid, lock::guid(&lock.namespace, &rendered_note.notetype, id));
         assert_eq!(note.modified, NOW);
     }
     let cards: Vec<(&str, Vec<u32>, &str)> =
@@ -71,17 +73,17 @@ fn example_package_imports_into_anki_and_stays_stable() {
     assert_eq!(
         cards,
         [
-            ("Periodic Table::1 Groups 🧪", vec![0], "deck::groups"),
-            ("Periodic Table::1 Groups 🧪", vec![0], "deck::groups"),
             ("Periodic Table::0 Elements", vec![0, 1], "deck::elements early"),
             ("Periodic Table::0 Elements", vec![0, 1], "common deck::elements"),
             ("Periodic Table::0 Elements", vec![0], "deck::elements early"),
             ("Periodic Table::0 Elements", vec![0, 1], "deck::elements late"),
             ("Periodic Table::0 Elements", vec![0, 1], "deck::elements late"),
+            ("Periodic Table::1 Groups 🧪", vec![0], "deck::groups"),
+            ("Periodic Table::1 Groups 🧪", vec![0], "deck::groups"),
         ]
     );
     assert!(first.notes.windows(2).all(|pair| pair[0].due < pair[1].due));
-    assert_eq!(first.notes[4].fields[3], "<img src=\"diamond.png\">");
+    assert_eq!(first.notes[2].fields[3], "<img src=\"diamond.png\">");
 
     let elements = lock.presets["elements"].id;
     assert!(first.presets.contains(&(elements, "Element drills".into(), 20, 0.92)));
@@ -127,7 +129,7 @@ fn example_package_imports_into_anki_and_stays_stable() {
     rendered.notes[2].fields["name"] = "but".into();
     let edited = package::package(&project, &files, &rendered, &mut again, NOW + 1000, &mut diagnostics).unwrap();
     let times: Vec<i64> = edited.notes.iter().map(|note| note.modified).collect();
-    assert_eq!(times, [NOW, NOW, NOW + 1000, NOW, NOW, NOW, NOW]);
+    assert_eq!(times, [NOW + 1000, NOW, NOW, NOW, NOW, NOW, NOW]);
     janky_anki::write_apkg(&edited, &apkg).unwrap();
     let third = janky_anki::import(
         &apkg,
@@ -140,7 +142,7 @@ fn example_package_imports_into_anki_and_stays_stable() {
     )
     .unwrap();
     assert_eq!((third.new, third.updated), (0, 1));
-    assert_eq!(third.notes[2].fields[1], "but");
+    assert_eq!(third.notes[0].fields[1], "but");
 }
 
 #[test]
@@ -163,7 +165,7 @@ fn shuffle_in_file_keeps_the_files_in_order() {
         lock::guid(&lock.namespace, &note.notetype, id)
     };
     let mut expected = Vec::new();
-    for file in [&["alkali-metals", "halogens"][..], &["li", "water", "c"], &["fe", "au"]] {
+    for file in [&["li", "water", "c"][..], &["fe", "au"], &["alkali-metals", "halogens"]] {
         let mut guids: Vec<String> = file.iter().map(|id| guid(id)).collect();
         guids.sort_by_key(|guid| lock::content_hash([guid.as_str()]));
         expected.extend(guids);

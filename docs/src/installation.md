@@ -17,6 +17,7 @@ Install these tools first:
 | A C compiler (for example `gcc`) | Compiles two small libraries that janky includes (Lua and SQLite). |
 | [`just`](https://github.com/casey/just) | Runs the setup commands of the project. |
 | `curl` and `unzip` | The setup uses them to download and unpack `protoc`. |
+| [Node.js](https://nodejs.org) (version 24, with `npm`) | Builds the web page of `janky preview`. |
 
 ## Build janky
 
@@ -29,7 +30,8 @@ Install these tools first:
    ```
 
    This downloads a helper program (`protoc`) and a copy of the Anki source code into the
-   source directory. You only do this once.
+   source directory. Then it builds the web page of `janky preview` with `npm`. You only do this
+   once.
 
 4. Build the program:
 
@@ -38,6 +40,10 @@ Install these tools first:
    ```
 
 When the build is complete, the program is at `target/release/janky` in the source directory.
+
+If Node.js is not installed, `just setup` shows a warning and continues. The release build then
+stops with the message "the preview UI is not built: run `just assets` first". Install Node.js, run
+`just assets`, then build again.
 
 ## Put janky on your PATH
 

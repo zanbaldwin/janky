@@ -10,13 +10,15 @@ Each time that you change your deck, do these steps:
 1. Edit your files (content files, note types or `deck.toml`).
 2. Run `janky check` to find errors.
 3. If `check` shows errors, correct them and run `janky check` again.
-4. Run `janky plan` to see what the next build changes.
-5. Read the plan. If it asks for work in Anki before the import, do that work now.
-6. Run `janky build` to write the package and update `deck.lock`.
-7. In Anki, import the package with the options that the plan gives.
-8. If you use Git, commit your changes, including `deck.lock`.
+4. If you changed a card design, look at the cards with `janky preview`. Reload the page after each
+   change.
+5. Run `janky plan` to see what the next build changes.
+6. Read the plan. If it asks for work in Anki before the import, do that work now.
+7. Run `janky build` to write the package and update `deck.lock`.
+8. In Anki, import the package with the options that the plan gives.
+9. If you use Git, commit your changes, including `deck.lock`.
 
-`check` and `plan` never write files, so you can run them as often as you like. `build` is the only
+`check`, `preview` and `plan` never write files, so you can run them as often as you like. `build` is the only
 command in this loop that writes the package and `deck.lock`.
 
 ### Example: you add an example sentence
@@ -97,6 +99,21 @@ deletes them. It asks you to confirm first.
 > `prune` deletes results that no current job uses. If you change an entry back later, janky must
 > make that result again, and a paid service charges you again. Run `prune` only when `plan` shows
 > no pending jobs and your content is final.
+
+## Agents and scripts
+
+An AI agent or a script can make and change a deck with the same commands. These commands help,
+because they need no browser:
+
+1. Run `janky --json check` to find the errors. Each line is one error or warning as JSON.
+2. Run `janky show` to list the identifiers of the cards.
+3. Run `janky show <entry>` to read the cards of an entry as text, or `janky --json show <entry>`
+   to read the HTML and the text as JSON.
+4. To see a card as a picture, save the output of `janky show <entry>/<card> --side front --format html`
+   to a file. Then open the file with a headless browser and take a screenshot.
+
+None of these commands writes files or runs generators. [show](commands.md#show) explains the
+command in full.
 
 ## Using Git with janky
 

@@ -17,6 +17,9 @@
 //!    [`janky_anki::Package`], and [`plan`] compares the new lock file with the old one.
 //! 6. [`janky_anki::write_apkg`] writes the `.apkg`, and the new `deck.lock` is written last.
 //!
+//! `janky preview` ([`preview`]) runs stages 1 to 5 on each page load, renders the cards with
+//! [`janky_anki::render`], and serves them on `127.0.0.1`. It writes no files.
+//!
 //! `janky publish` ([`publish`]) applies the package to a copy of the user's collection and
 //! syncs it with their sync server, through [`janky_anki::Session`].
 //!
@@ -42,12 +45,14 @@
 //! - [`plan`]: what the next build changes, compared with the previous build.
 //! - [`plugin`]: loading plugins, and their filters, functions and generators in templates.
 //! - [`plugin_cache`]: `janky.cache`, one SQLite file for each plugin instance.
+//! - [`preview`]: `janky preview`, a local web server that shows each card in the browser.
 //! - [`project`]: `deck.toml` and the note types, and the checks between them.
 //! - [`publish`]: `janky publish`, through a copy of the collection and the sync server.
 //! - [`render`]: field rendering and the card template checks.
 //! - [`runner`]: runs generator jobs as coroutines, with limits and an HTTP interface.
 //! - [`schema`]: the `[schema]` short form compiled to JSON Schema.
 //! - [`secrets`]: plugin secrets from environment variables, files and `.env`.
+//! - [`show`]: `janky show`, the cards of one entry as text or JSON, for agents and scripts.
 //! - [`source`]: remote note types from Git or archive URLs, with a local cache.
 //! - [`tree`]: YAML, TOML and JSON parsed to a value with a JSON Pointer to span map.
 
@@ -67,12 +72,14 @@ pub mod package;
 pub mod plan;
 pub mod plugin;
 pub mod plugin_cache;
+pub mod preview;
 pub mod project;
 pub mod publish;
 pub mod render;
 pub mod runner;
 pub mod schema;
 pub mod secrets;
+pub mod show;
 pub mod source;
 pub mod tree;
 

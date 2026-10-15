@@ -104,6 +104,27 @@ template::script-end  `assets/a.js` contains `</script>`
 
 If you need this text in a JavaScript string, split it, for example `"</scr" + "ipt>"`.
 
+## See your cards in the browser
+
+Run `janky preview` to see your cards while you change the CSS or the JavaScript. Reload the page
+after each change. [The command reference](../cli/commands.md#preview) explains the command.
+
+The preview puts the same classes on `<body>` as Anki:
+
+| Class | When |
+|-------|------|
+| `card` and `card1`, `card2`, … | Always. The number is the position of the card type in the note type file, from 1. |
+| `nightMode` and `night_mode` | Night mode is on. |
+| `isLin` | The platform menu shows Desktop. Anki uses `isMac` or `isWin` on those systems. |
+| `mobile android` | The platform menu shows Android. The card is 412 pixels wide. |
+| `mobile iphone` | The platform menu shows iPhone. The card is 390 pixels wide. |
+
+Use these classes in your CSS, for example `.card.nightMode { background-color: #222; }`. The
+`card` class and the night class are on the same element, so write them without a space.
+
+The preview also has the base CSS of the Anki reviewer, for example the margin of `body`, the
+maximum size of images and the colours of a typed answer. So a card looks the same as in Anki.
+
 ## Tips
 
 - Keep the CSS classes the same in the card templates and the field templates. For example, the

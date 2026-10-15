@@ -73,3 +73,18 @@ pub fn fake_data(input: &serde_json::Value) -> serde_json::Value {
         "colour": format!("<b>{symbol}</b>"),
     })
 }
+
+/// Every file below `dir` with its bytes, sorted, to compare a project before and after a command.
+pub fn tree(dir: &Path) -> Vec<(PathBuf, Vec<u8>)> {
+    let mut out = Vec::new();
+    for entry in std::fs::read_dir(dir).unwrap() {
+        let path = entry.unwrap().path();
+        if path.is_dir() {
+            out.extend(tree(&path));
+        } else {
+            out.push((path.clone(), std::fs::read(&path).unwrap()));
+        }
+    }
+    out.sort();
+    out
+}

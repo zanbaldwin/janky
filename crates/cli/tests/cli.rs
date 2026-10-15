@@ -110,7 +110,7 @@ fn check_build_and_schema_on_the_example() {
 
     let schema = janky(&deck, &["schema"]);
     assert!(schema.status.success());
-    for name in ["deck", "notetype", "deck.lock", "content"] {
+    for name in ["deck", "notetype", "lock", "content"] {
         let text = std::fs::read_to_string(project.join(format!(".janky/schema/{name}.schema.json"))).unwrap();
         let value: serde_json::Value = serde_json::from_str(&text).unwrap();
         assert!(value.is_object(), "{name}");
@@ -585,7 +585,7 @@ fn schema_writes_the_fixed_schemas_before_plugins_run() {
     std::fs::write(project.join("plugins/text.lua"), "error('broken')").unwrap();
     let output = janky(&project.join("deck.toml"), &["schema"]);
     assert!(!output.status.success());
-    for name in ["deck", "notetype", "deck.lock", "content"] {
+    for name in ["deck", "notetype", "lock", "content"] {
         assert!(project.join(format!(".janky/schema/{name}.schema.json")).is_file(), "{name}");
     }
 }

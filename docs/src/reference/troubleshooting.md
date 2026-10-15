@@ -355,6 +355,41 @@ give.
 
 See [Command reference](../cli/commands.md).
 
+### preview says that it cannot listen on the port
+
+Another program uses the port of `janky preview`, for example a second `janky preview`.
+
+```text
+preview::bind
+
+  x cannot listen on `127.0.0.1:5259`: Address already in use (os error 98)
+  help: use another port with `--port`
+```
+
+1. Stop the other program, or use another port: `janky preview --port 5260`.
+2. Open the address that janky prints.
+
+See [preview](../cli/commands.md#preview).
+
+### The preview page says that the UI is not built
+
+You built janky without the web page files of the preview. The setup builds them with Node.js.
+
+1. Install Node.js (see [Installation](../installation.md)).
+2. In the janky source directory, run `just assets`.
+3. Build janky again.
+
+### show says that an entry or a card does not exist
+
+`janky show` gives `show::unknown-entry` if no entry has the id, and `show::unknown-card` if the
+note type of the entry has no card type with the key.
+
+1. Run `janky show` without an identifier to list all identifiers.
+2. Look at the errors above the message. An entry with errors is not in the list.
+3. For `show::unknown-card`, use a card key from the help line.
+
+See [show](../cli/commands.md#show).
+
 ### generate or prune says that stdin is not a terminal
 
 janky asks before it changes the cache. When you run janky from a script, it cannot ask, and it
