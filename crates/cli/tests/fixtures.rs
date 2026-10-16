@@ -224,6 +224,17 @@ fn plugin_filters_and_functions_render() {
 }
 
 #[test]
+fn field_templates_import_and_include_j2_files_from_the_notetype_directory() {
+    let dir = data().join("partials");
+    let mut diagnostics = Diagnostics::default();
+    let checked =
+        janky_cli::cli::check(&dir.join("deck.toml"), Default::default(), &mut diagnostics, &mut Vec::new()).unwrap();
+    assert_eq!(diagnostics.to_json_lines(), "");
+    let note = &checked.rendered.notes[0];
+    assert_eq!(note.fields["word"], "<b>Li</b> <i>Li</i>");
+}
+
+#[test]
 fn generate_records_jobs_and_returns_media_values() {
     let dir = data().join("generate-test");
     let mut diagnostics = Diagnostics::default();

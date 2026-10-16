@@ -175,12 +175,26 @@ the macro `example` from the example above, another field can use it:
 {% from 'notetypes/word/fields/examples.html.j2' import example %}{% if entry.examples %}{{ example(entry.examples[0]) }}{% endif %}
 ```
 
-This works only for a file that a field of a note type uses as its `template`. janky does not know
-any other file. For example, an include of `notetypes/word/fields/other.j2` gives this error, if no
-field uses that file:
+You can also import from or include a file that no field uses as its `template`. The name of the
+file must end with `.j2`. The file must be in the directory that holds the note type file, or in a
+directory below it. Use this to keep parts of templates, for example macros, in their own files:
+
+```jinja
+{% from 'notetypes/word/fields/parts/compare.j2' import compare %}
+```
+
+janky reads such a file only when a template imports or includes it. An error in a file that no
+template uses does not show.
+
+janky does not find these files:
+
+- a file outside the directory of the note type, also through `..` or a symbolic link
+- a file whose name does not end with `.j2`, for example `notes.txt`
+
+An include of such a file gives this error:
 
 ```text
-template::render  template not found: tried to include non-existing template 'notetypes/word/fields/other.j2'
+template::render  template not found: tried to include non-existing template 'notetypes/word/fields/notes.txt'
 ```
 
 ## Auto-escaping

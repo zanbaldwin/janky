@@ -1,0 +1,7 @@
+[deck]
+name = "Partials"
+content = ["content/*"]
+
+[notetypes.word]
+path = "notetypes/word.toml"
+default = true

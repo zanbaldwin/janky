@@ -1,0 +1,13 @@
+name = "Word"
+
+[schema]
+word = { type = "string", required = true }
+
+[fields.word]
+name = "Word"
+template = "fields/word.html.j2"
+
+[cards.recognition]
+name = "Recognition"
+front = "cards/front.html"
+back = "cards/back.html"

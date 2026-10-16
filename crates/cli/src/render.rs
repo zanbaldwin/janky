@@ -21,7 +21,7 @@
 use std::collections::{HashMap, HashSet};
 use std::fmt;
 use std::ops::Range;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
 use indexmap::IndexMap;
@@ -36,7 +36,7 @@ use crate::diagnostic::{Diagnostic, Diagnostics, Severity, Source};
 use crate::generate::{Job, Jobs, Kind};
 use crate::media::{Library, MediaFile, Problem};
 use crate::plugin::{self, Failure, Plugins, Warnings};
-use crate::project::{Project, join_name};
+use crate::project::{Project, inside_path, join_name};
 use crate::tree::{Tree, child};
 
 /// The maximum size of one rendered field, in bytes.
@@ -220,6 +220,7 @@ pub fn render_with(
 ) -> Rendered {
     let library = Arc::new(Mutex::new(Library::new(&project.root, &project.deck.deck.media_dirs)));
     let mut env = environment(library.clone());
+    env.set_loader(partial_loader(project));
     let failure: Failure = Arc::default();
     let jobs: Jobs = Arc::default();
     let warnings: Warnings = Arc::default();
@@ -380,6 +381,39 @@ pub fn render_with(
     }));
     let log = plugins.map(|plugins| plugins.sandbox.take_log()).unwrap_or_default();
     Rendered { notetypes, notes, media, log, jobs }
+}
+
+/// Loads a `.j2` file that no field names, for `{% include %}`, `{% import %}` and `{% from %}`.
+///
+/// A name starts with the diagnostic name of a note type directory, like the names of field
+/// templates. The file must end with `.j2` and be inside that directory, also through symlinks.
+/// Any other name is not found.
+fn partial_loader(project: &Project) -> impl Fn(&str) -> Result<Option<String>, Error> + Send + Sync + 'static {
+    let dirs: Vec<(String, PathBuf)> =
+        project.notetypes.values().map(|notetype| (notetype.dir_name.clone(), notetype.dir.clone())).collect();
+    move |name: &str| {
+        if !name.ends_with(".j2") {
+            return Ok(None);
+        }
+        for (prefix, dir) in &dirs {
+            let rest = if prefix.is_empty() {
+                Some(name)
+            } else {
+                name.strip_prefix(prefix.as_str()).and_then(|rest| rest.strip_prefix('/'))
+            };
+            let Some(relative) = rest.and_then(inside_path) else { continue };
+            let (Ok(path), Ok(dir)) = (dir.join(relative).canonicalize(), dir.canonicalize()) else {
+                continue;
+            };
+            if !path.starts_with(&dir) {
+                continue;
+            }
+            return std::fs::read_to_string(&path)
+                .map(Some)
+                .map_err(|error| Error::new(ErrorKind::TemplateNotFound, format!("cannot read `{name}`: {error}")));
+        }
+        Ok(None)
+    }
 }
 
 fn take_warnings(warnings: &Warnings, site: &Site, first_seen: &str, diagnostics: &mut Diagnostics) {
