@@ -11,7 +11,7 @@ export function App() {
   const [preview, setPreview] = useState<Preview | null>(null);
   const [failure, setFailure] = useState<string | null>(null);
   const [filter, setFilter] = useState("");
-  const [showEmpty, setShowEmpty] = useState(true);
+  const [showEmpty, setShowEmpty] = useState(false);
   const [selection, setSelection] = useState<Selection>(() => parseHash(window.location.hash));
   const [typed, setTyped] = useState("");
   const [width, setWidth] = useState<number | null>(loadWidth);

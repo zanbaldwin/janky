@@ -174,7 +174,7 @@ Open the address in your browser. The page has two parts:
   and the card type. The source is the content file and the position of the entry in it, from 0, for
   example `content/vocab/01-basics.yaml #2`. The rows are in the order of the new cards in the
   package (see [The order of new cards](../deck/decks.md#the-order-of-new-cards)). Type in the
-  filter field to find a card. Clear **Show empty cards** to hide the cards with an empty front.
+  filter field to find a card. Select **Show empty cards** to show the cards with an empty front.
 - On the right, the page shows the selected card. Use **Front** and **Back** to turn the card. Use
   **Night mode** to see the night colours, and the platform menu to see the card at the width of a
   phone.
@@ -202,8 +202,8 @@ Press Ctrl+C in the terminal to stop the server.
 - `{{type:Field}}` shows an input. Type your answer and press Enter. The back compares your answer
   with the field, as in Anki.
 - A card with an empty front has the label `empty`. Anki does not make this card, for example
-  because the `when` condition of the card type does not apply to the entry. To hide these rows,
-  clear **Show empty cards**.
+  because the `when` condition of the card type does not apply to the entry. The table shows these
+  rows only when you select **Show empty cards**.
 - A note type that no entry uses gets one row for each card type, with N/A as the entry and the deck.
   Each field shows its name, for example `(Front)`, as in the card layout screen of Anki.
 

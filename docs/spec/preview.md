@@ -296,7 +296,7 @@ React 19 and TypeScript, built with Vite. The source is in `crates/cli/ui/`.
 
 - On the left: a table with the columns deck, entry, source, notetype and card. The source is the file and the
   entry index, for example `content/words.yaml #0`. A filter field above the table filters the
-  rows by text. A "Show empty cards" checkbox below the filter field hides the rows with `empty: true`. It is on
+  rows by text. A "Show empty cards" checkbox below the filter field hides the rows with `empty: true`. It is off
   by default, and the page does not keep its value.
 - On the right: the iframe, with buttons for front and back, a night mode checkbox, and a platform menu. Android
   shows the card 412 pixels wide, and iPhone 390 pixels wide.
