@@ -23,11 +23,11 @@ export function CardTable({ rows, selected, onSelect }: Props) {
     <table className="cards">
       <thead>
         <tr>
-          <th>Note type</th>
-          <th>Entry</th>
           <th>Deck</th>
-          <th>Card</th>
+          <th>Entry</th>
           <th>Source</th>
+          <th>Note type</th>
+          <th>Card</th>
         </tr>
       </thead>
       <tbody>
@@ -40,15 +40,15 @@ export function CardTable({ rows, selected, onSelect }: Props) {
             onClick={() => onSelect(row.row)}
             onKeyDown={(event) => onKeyDown(event, row.row)}
           >
-            <td title={row.notetype.key}>{row.notetype.name}</td>
-            <td>{row.entry?.id ?? "N/A"}</td>
             <td>{row.deck?.full_name ?? "N/A"}</td>
+            <td>{row.entry?.id ?? "N/A"}</td>
+            <td>{row.entry === null ? "N/A" : source(row.entry)}</td>
+            <td title={row.notetype.key}>{row.notetype.name}</td>
             <td title={row.card.key}>
               {row.card.name}
               {row.empty && <span className="badge">empty</span>}
               {row.error !== null && <span className="badge error">error</span>}
             </td>
-            <td>{row.entry === null ? "N/A" : source(row.entry)}</td>
           </tr>
         ))}
       </tbody>

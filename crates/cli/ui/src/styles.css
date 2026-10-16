@@ -125,9 +125,9 @@ table.cards {
   background: var(--selected);
 }
 
+.cards tr.sample td:nth-child(1),
 .cards tr.sample td:nth-child(2),
-.cards tr.sample td:nth-child(3),
-.cards tr.sample td:nth-child(5) {
+.cards tr.sample td:nth-child(3) {
   color: var(--muted);
 }
 

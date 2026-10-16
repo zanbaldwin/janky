@@ -170,8 +170,8 @@ Preview at http://127.0.0.1:5259/ — reload the page to read the files again, p
 
 Open the address in your browser. The page has two parts:
 
-- On the left, a table has one row for each card: the note type, the entry, the deck, the card type
-  and the source. The source is the content file and the position of the entry in it, from 0, for
+- On the left, a table has one row for each card: the deck, the entry, the source, the note type
+  and the card type. The source is the content file and the position of the entry in it, from 0, for
   example `content/vocab/01-basics.yaml #2`. The rows are in the order of the new cards in the
   package (see [The order of new cards](../deck/decks.md#the-order-of-new-cards)). Type in the
   filter field to find a card. Clear **Show empty cards** to hide the cards with an empty front.

@@ -294,7 +294,7 @@ The `card` Vite entry has the reviewer shim and MathJax:
 
 React 19 and TypeScript, built with Vite. The source is in `crates/cli/ui/`.
 
-- On the left: a table with the columns notetype, entry, deck, card and source. The source is the file and the
+- On the left: a table with the columns deck, entry, source, notetype and card. The source is the file and the
   entry index, for example `content/words.yaml #0`. A filter field above the table filters the
   rows by text. A "Show empty cards" checkbox below the filter field hides the rows with `empty: true`. It is on
   by default, and the page does not keep its value.
