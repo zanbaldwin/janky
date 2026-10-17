@@ -420,12 +420,33 @@ iframe {
 }
 
 .diagnostics ul {
-  margin: 4px 0;
-  padding-left: 16px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.diagnostic ul {
+  padding-left: 12px;
 }
 
 .diagnostic {
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  padding: 2px 0 2px 10px;
+  border-left: 3px solid var(--muted);
+}
+
+.diagnostic.error {
+  border-left-color: var(--error);
+}
+
+.diagnostic.warning {
+  border-left-color: var(--warning);
+}
+
+.diagnostic .meta {
+  color: var(--muted);
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12px;
 }
 
 .diagnostic .severity {
@@ -440,7 +461,6 @@ iframe {
   color: var(--warning);
 }
 
-.diagnostic .where,
 .diagnostic .help {
   color: var(--muted);
 }

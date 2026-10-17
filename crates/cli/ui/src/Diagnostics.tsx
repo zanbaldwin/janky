@@ -16,11 +16,11 @@ function Item({ diagnostic }: { diagnostic: Diagnostic }) {
   const where = location(diagnostic);
   return (
     <li className={`diagnostic ${diagnostic.severity}`}>
-      <div>
-        <span className="severity">{diagnostic.severity}</span> <code>{diagnostic.code}</code>
-        {where !== null && <span className="where"> {where}</span>}
+      <div className="message">{diagnostic.message}</div>
+      <div className="meta">
+        <span className="severity">{diagnostic.severity}</span> · {diagnostic.code}
+        {where !== null && <> · {where}</>}
       </div>
-      <div>{diagnostic.message}</div>
       {diagnostic.help !== null && <div className="help">help: {diagnostic.help}</div>}
       {diagnostic.related.length > 0 && (
         <ul>
