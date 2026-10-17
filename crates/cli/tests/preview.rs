@@ -555,7 +555,14 @@ fn export_gives_the_same_files_for_the_same_project() {
     let (first, second) = (work.path().join("first"), work.path().join("second"));
     export(&dir, &first);
     export(&dir, &second);
-    assert_eq!(files(&first), files(&second));
+    // Anki writes a different `deck.apkg` each time, so only its name is compared.
+    let site = |dir: &Path| -> Vec<(String, Vec<u8>)> {
+        files(dir)
+            .into_iter()
+            .map(|(path, bytes)| if path == "deck.apkg" { (path, Vec::new()) } else { (path, bytes) })
+            .collect()
+    };
+    assert_eq!(site(&first), site(&second));
 }
 
 #[test]
@@ -645,4 +652,74 @@ fn export_shows_the_expected_answer_without_a_comparison() {
     let html = card_data(&body)["html"].as_str().unwrap().to_string();
     assert!(html.contains("<code id=typeans>forms salts</code>"), "{html}");
     assert!(!html.contains("typeBad") && !html.contains("[[type:"), "{html}");
+}
+
+fn export_warnings(diagnostics: &janky_cli::diagnostic::Diagnostics) -> Vec<String> {
+    diagnostics
+        .iter()
+        .filter(|diagnostic| diagnostic.to_json()["severity"] == "warning")
+        .map(|diagnostic| diagnostic.to_json()["code"].as_str().unwrap().to_string())
+        .collect()
+}
+
+fn import(apkg: &Path, collection: &Path) -> janky_anki::Imported {
+    let options = janky_anki::ImportOptions {
+        update_if_newer: true,
+        merge_notetypes: true,
+        with_deck_configs: true,
+    };
+    janky_anki::import(apkg, collection, options).unwrap()
+}
+
+#[test]
+fn export_includes_the_package_of_the_build_when_deck_lock_is_current() {
+    if !janky_cli::preview::ui_built() {
+        return;
+    }
+    let (work, dir) = common::example();
+    let out = work.path().join("site");
+    let (diagnostics, messages) = export(&dir, &out);
+    assert!(export_codes(&diagnostics).is_empty(), "{:?}", export_codes(&diagnostics));
+    assert!(!export_warnings(&diagnostics).contains(&"preview::export-lock".to_string()));
+    assert!(messages.iter().any(|message| message.ends_with(", deck.apkg")), "{messages:?}");
+
+    let lock = std::fs::read(dir.join("deck.lock")).unwrap();
+    let output = std::process::Command::new(env!("CARGO_BIN_EXE_janky"))
+        .args(["--deck", dir.join("deck.toml").to_str().unwrap(), "build"])
+        .output()
+        .unwrap();
+    assert!(output.status.success(), "{}", String::from_utf8_lossy(&output.stderr));
+    assert_eq!(std::fs::read(dir.join("deck.lock")).unwrap(), lock, "the build does not change a current lock");
+
+    let collection = work.path().join("collection");
+    let first = import(&out.join("deck.apkg"), &collection);
+    assert!(first.new > 0);
+    let second = import(&dir.join(".janky/build/periodic.apkg"), &collection);
+    assert_eq!((second.new, second.updated, second.duplicate), (0, 0, first.new));
+}
+
+#[test]
+fn export_has_no_package_when_deck_lock_is_missing_or_out_of_date() {
+    if !janky_cli::preview::ui_built() {
+        return;
+    }
+    let (work, dir) = common::example();
+    let basics = dir.join("content/groups/basics.toml");
+    let mut text = std::fs::read_to_string(&basics).unwrap();
+    text.push_str("\n[[entries]]\nid = 'noble-gases'\ngroup = 'Group 18'\nproperty = 'does not react'\n");
+    std::fs::write(&basics, text).unwrap();
+    let stale = work.path().join("stale");
+    let (diagnostics, messages) = export(&dir, &stale);
+    assert!(export_codes(&diagnostics).is_empty(), "{:?}", export_codes(&diagnostics));
+    assert!(export_warnings(&diagnostics).contains(&"preview::export-lock".to_string()));
+    assert!(!messages.iter().any(|message| message.contains("deck.apkg")), "{messages:?}");
+    assert!(stale.join("preview.json").is_file());
+    assert!(!stale.join("deck.apkg").exists());
+
+    std::fs::remove_file(dir.join("deck.lock")).unwrap();
+    let missing = work.path().join("missing");
+    let (diagnostics, _) = export(&dir, &missing);
+    assert!(export_warnings(&diagnostics).contains(&"preview::export-lock".to_string()));
+    assert!(!missing.join("deck.apkg").exists());
+    assert!(!dir.join("deck.lock").exists(), "the export does not write deck.lock");
 }

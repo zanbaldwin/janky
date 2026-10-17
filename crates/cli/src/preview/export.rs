@@ -8,6 +8,10 @@
 //! The generation is a BLAKE3 hash of the rows, the card documents and the media files, so the same project gives the
 //! same files. A web server can then keep the files below `{generation}/` for a long time.
 //!
+//! `deck.apkg` is the package of `janky build`, but only if `deck.lock` exists and the build would not change it.
+//! Otherwise the ids, GUIDs and times of the package would differ from the next real build, and an import of both
+//! would make duplicates. The export then has no `deck.apkg`, and gives a warning.
+//!
 //! The export writes into a new directory next to `DIR`, then renames it to `DIR`. It writes no file in the project
 //! and never writes through a link. `DIR` must not exist, be an empty directory, or be an earlier export: a
 //! directory with the marker file [`MARKER`]. An earlier export is renamed away, and is then deleted.
@@ -60,6 +64,18 @@ pub fn export(
         return;
     };
     missing_media(&prepared.checked.rendered, false, diagnostics);
+    let lock_path = prepared.checked.project.root.join("deck.lock");
+    let current =
+        fs::symlink_metadata(&lock_path).is_ok_and(|metadata| metadata.is_file()) && prepared.previous == prepared.next;
+    if !current {
+        diagnostics.push(
+            Diagnostic::warning(
+                "preview::export-lock",
+                "the export has no `deck.apkg`, because `deck.lock` is missing or out of date",
+            )
+            .with_help("run `janky build`, then export again"),
+        );
+    }
     let mut loaded = Loaded {
         checked: prepared.checked,
         lock: prepared.next,
@@ -89,7 +105,7 @@ pub fn export(
     };
     let written = (|| {
         fs::create_dir(&staging).map_err(|error| format!("cannot create `{}`: {error}", staging.display()))?;
-        write_site(&staging, &rows, &media)
+        write_site(&staging, &rows, &media, current.then_some(&loaded.package))
     })();
     let written = written.and_then(|()| swap(&staging, dir));
     match written {
@@ -98,7 +114,8 @@ pub fn export(
                 1 => "1 media file".to_string(),
                 count => format!("{count} media files"),
             };
-            messages.push(format!("wrote {}: {} cards, {media}", dir.display(), rows.len()));
+            let package = if current { ", deck.apkg" } else { "" };
+            messages.push(format!("wrote {}: {} cards, {media}{package}", dir.display(), rows.len()));
         },
         Err(message) => {
             let _ = fs::remove_dir_all(&staging);
@@ -154,8 +171,13 @@ fn plain_name(name: &str) -> bool {
         && matches!(Path::new(name).components().collect::<Vec<_>>().as_slice(), [Component::Normal(_)])
 }
 
-/// Writes the site into the new directory `staging`, with the marker last.
-fn write_site(staging: &Path, rows: &[super::Row], media: &[(String, PathBuf)]) -> Result<(), String> {
+/// Writes the site into the new directory `staging`, with `deck.apkg` if there is a `package`, and the marker last.
+fn write_site(
+    staging: &Path,
+    rows: &[super::Row],
+    media: &[(String, PathBuf)],
+    package: Option<&janky_anki::Package>,
+) -> Result<(), String> {
     let mut hasher = blake3::Hasher::new();
     let mut hash = |path: &str, bytes: &[u8]| {
         hasher.update(&(path.len() as u64).to_le_bytes());
@@ -206,6 +228,10 @@ fn write_site(staging: &Path, rows: &[super::Row], media: &[(String, PathBuf)]) 
         "rows": rows_json,
     });
     write(staging, "preview.json", json_text(&preview).as_bytes())?;
+    if let Some(package) = package {
+        janky_anki::write_apkg(package, &staging.join("deck.apkg"))
+            .map_err(|error| format!("cannot write `deck.apkg`: {}", error.0))?;
+    }
     write(staging, MARKER, b"janky preview --export\n")
 }
 
