@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { cardUrl, type Platform, type Row, type View } from "./api";
 import type { FlipMessage, TypedMessage } from "./card/reviewer";
 import { isFlipKey } from "./flip";
+import { Notice } from "./Notice";
 
 interface Props {
   generation: string;
@@ -132,11 +133,11 @@ export function CardView({ generation, exported, row, view, onView, typed, onTyp
           </div>
         </div>
       </header>
-      {row.empty && <p className="note">The front is empty, so Anki does not make this card.</p>}
+      {row.empty && <Notice kind="info">The front is empty, so Anki does not make this card.</Notice>}
       {exported && row.type_answer && view.side === "back" && (
-        <p className="note">
+        <Notice kind="info">
           Only <code>janky preview</code> compares the typed answer. This back shows the expected answer.
-        </p>
+        </Notice>
       )}
       {row.error !== null ? (
         <pre className="card-error">{row.error}</pre>

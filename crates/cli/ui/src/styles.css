@@ -355,10 +355,34 @@ iframe {
   max-height: calc(844px + 20px);
 }
 
-.note,
-.stale {
+.notice {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
   margin: 0 0 8px;
-  color: var(--warning);
+  padding: 8px 10px;
+  border: 1px solid color-mix(in srgb, var(--tone) 35%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--tone) 10%, transparent);
+}
+
+.notice.warning {
+  --tone: var(--warning);
+}
+
+.notice.info {
+  --tone: var(--muted);
+}
+
+.notice .icon {
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  color: var(--tone);
+}
+
+.notice p {
+  margin: 0;
 }
 
 .card-error,

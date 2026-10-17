@@ -3,6 +3,7 @@ import { fetchPreview, type Preview, type View } from "./api";
 import { CardTable } from "./CardTable";
 import { CardView } from "./CardView";
 import { Diagnostics } from "./Diagnostics";
+import { Notice } from "./Notice";
 import { filterRows, formatHash, parseHash, type Selection } from "./selection";
 import { Splitter } from "./Splitter";
 import { loadWidth, saveWidth } from "./width";
@@ -57,7 +58,9 @@ export function App() {
     >
       <aside>
         {preview.stale && (
-          <p className="stale">The project did not load. These cards are from an earlier load. Fix the errors, then reload the page.</p>
+          <Notice kind="warning">
+            The project did not load. These cards are from an earlier load. Fix the errors, then reload the page.
+          </Notice>
         )}
         <Diagnostics diagnostics={preview.diagnostics} />
         <input
