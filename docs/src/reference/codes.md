@@ -220,6 +220,10 @@ with `error: the plugin call`, without a code. See
 | Code | Sev. | Meaning | Typical fix |
 |------|------|---------|-------------|
 | `preview::bind` | E | janky cannot listen on the port, for example because another program uses it. | Stop the other program, or use another port with `--port`. |
+| `preview::no-ui` | E | `--export` needs the web page files, and this janky was built without them. | Run `just assets`, then build janky again. |
+| `preview::export-target` | E | The export directory has other files, or the path is a file or a symbolic link. janky wrote nothing. | Use a new directory, or remove the directory first. |
+| `preview::export-write` | E | janky cannot write the export, for example because the disk is full. The export directory did not change. | Read the message, then export again. |
+| `preview::export-lock` | W | `deck.lock` is missing, or a build would change it, so the export has no `deck.apkg`. | Run `janky build`, then export again. |
 | `preview::serve` | E | The preview server stopped because of an error. | Read the message, then start `janky preview` again. |
 | `preview::render` | E | Anki rejects a card template, for example a `{{#Field}}` without `{{/Field}}`. The page shows the last cards that rendered. | Fix the card template that the message names, then reload the page. |
 

@@ -74,8 +74,9 @@ You use three commands most of the time:
 | `janky plan` | Shows what the next build adds, changes or removes, and which import options to tick in Anki | No |
 | `janky build` | Writes the `.apkg` package and updates `deck.lock` | Yes |
 
-`janky preview` and `janky show` also write no files. `janky preview` shows each card in your
-browser, so you can see a change to a note type before you build. `janky show` prints the cards of
+`janky preview` and `janky show` also write no files in the project. `janky preview` shows each
+card in your browser, so you can see a change to a note type before you build. `janky preview
+--export` writes the preview as static files for a web server, outside the project. `janky show` prints the cards of
 one entry, for AI agents and scripts. See [preview](cli/commands.md#preview) and
 [show](cli/commands.md#show).
 

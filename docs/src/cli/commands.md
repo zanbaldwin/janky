@@ -13,7 +13,7 @@ janky [flags] <command> [flags]
 The general flags (`--deck`, `--quiet`, `--verbose`, `--json`, `--offline` and `--allow-missing`) can go
 before or after the command name. `--yes` belongs to `generate`, `prune` and `publish` only, so it
 must come after the command name: `janky generate --yes`. The other flags of `publish` also come
-after its name, and so do `--port` of `preview` and the flags of `show`.
+after its name, and so do `--port` and `--export` of `preview` and the flags of `show`.
 
 `janky --help` lists the commands and flags. `janky <command> --help` shows the help of one command,
 for example `janky generate --help`. `janky --version` prints the version.
@@ -25,7 +25,7 @@ for example `janky generate --help`. `janky --version` prints the version.
 | [`check`](#check) | Finds errors in all project files | Nothing |
 | [`plan`](#plan) | Shows what the next build changes, and the missing generator jobs | Nothing |
 | [`build`](#build) | Writes the package | The `.apkg` file and `deck.lock` |
-| [`preview`](#preview) | Shows each card in your browser | Nothing |
+| [`preview`](#preview) | Shows each card in your browser | Nothing. With `--export`, the export directory |
 | [`show`](#show) | Prints the cards of one entry as text, JSON or HTML | Nothing |
 | [`schema`](#schema) | Writes schema files for your code editor | `.janky/schema/` |
 | [`update`](#update) | Moves remote note types to their newest commit | `deck.lock` (the source records only) |
@@ -209,7 +209,8 @@ Press Ctrl+C in the terminal to stop the server.
 
 ### What the preview does not do
 
-- It writes no files. It does not write `deck.lock`, the package or `.janky/`.
+- It writes no files in the project. It does not write `deck.lock`, the package or `.janky/`.
+  Only `--export` writes files, and only in the export directory.
 - It does not run generators. Missing generated media and data show as in `check`.
 - It does not show answer buttons, scheduling or image occlusion. It does not have add-on filters,
   jQuery or the JavaScript API of AnkiDroid.
@@ -225,9 +226,111 @@ Press Ctrl+C in the terminal to stop the server.
 - If a plugin runs longer than its time limit, janky stops, and the server stops too. See
   [The sandbox](../authoring/sandbox.md).
 
+### Export to a web server
+
+`janky preview --export <DIR>` writes the preview as static files. A web server such as Nginx can
+then show your cards to other people, without janky. Use it to show or demonstrate a deck.
+
+```console
+$ janky preview --export site
+wrote site: 12 cards, 1 media file, deck.apkg
+```
+
+The export starts no server. `--export` and `--port` cannot be used together.
+
+The export reads the project in the same way as `janky build`. If the project has an error, the
+export stops and writes nothing. Missing generated media and data are warnings, as in `plan`. The
+page of the export shows no errors or warnings.
+
+The export directory contains:
+
+| Path | Contents |
+|------|----------|
+| `index.html`, `assets/` | The page. |
+| `preview.json` | The rows of the table. |
+| `<generation>/cards/` | One HTML file for each side of each card. |
+| `<generation>/media/` | The media files of the cards. |
+| `deck.apkg` | The package of `janky build`, if `deck.lock` is up to date. |
+| `.janky-export` | A marker file. It shows that the directory is an export. |
+
+`<generation>` is a hash of the cards and the media. The same project gives the same name, and a
+change to a card or a media file gives a new name. A web server can keep the files below it for a
+long time.
+
+All links in the export are relative. You can put the export at the root of a site or below a path,
+for example `https://example.com/decks/periodic/`.
+
+#### The package
+
+The export contains `deck.apkg` only if `deck.lock` exists and a build would not change it. The
+package is then the same deck as the package of `janky build`, with the same ids. If `deck.lock` is
+missing or out of date, the ids of a package would differ from those of the next build. A user who
+imports both would get duplicate notes. So the export then has no `deck.apkg`, and janky gives the
+warning `preview::export-lock`. To get the package, run `janky build`, then export again. The
+export never writes `deck.lock`.
+
+#### The export directory
+
+The directory must not exist, it must be empty, or it must be an earlier export. janky writes
+the files into a new directory next to it, then renames that directory to the export directory. A
+web server never sees half an export.
+
+- If the directory is an earlier export, janky replaces it and deletes the old files.
+- If the directory has other files, janky does not touch it and stops with
+  `preview::export-target`. It also refuses a file or a symbolic link at the path.
+
+#### What an export cannot do
+
+- The back of a `{{type:Field}}` card shows the expected answer. It does not compare a typed answer,
+  because only the server of `janky preview` can do that. The page shows a note on these cards.
+- The page does not read your files again. Export again after a change.
+
+#### Settings for Nginx
+
+The card pages and the media files need the same headers that the server of `janky preview` sends:
+
+- `Content-Security-Policy` keeps the JavaScript of a card in a sandbox, also when somebody opens a
+  card page directly.
+- `Access-Control-Allow-Origin` lets the sandboxed card load the MathJax fonts and the fonts of your
+  note type. Without it, the cards still show, but with other fonts.
+
+This example serves an export from `/srv/site`:
+
+```nginx
+server {
+    server_name decks.example.com;
+    root /srv/site;
+
+    location ~ /\.janky-export$ {
+        return 404;
+    }
+    location ~ "^/[0-9a-f]{32}/cards/" {
+        add_header Content-Security-Policy "sandbox allow-scripts";
+        add_header X-Content-Type-Options nosniff;
+    }
+    location ~ "^/[0-9a-f]{32}/media/" {
+        add_header Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; sandbox";
+        add_header Access-Control-Allow-Origin *;
+        add_header X-Content-Type-Options nosniff;
+    }
+    location /assets/ {
+        add_header Access-Control-Allow-Origin *;
+    }
+}
+```
+
+Nginx needs the quotes around a regular expression that has `{` in it. For an export below a path,
+add the path to each `location`.
+
+> [!WARNING]
+> Use a host name that serves only the export. Without the `Content-Security-Policy` header, a card
+> page that somebody opens directly runs its JavaScript with the permissions of your site. This
+> includes the scripts of remote note types.
+
 > [!NOTE]
-> The preview needs the web page files that `just setup` builds. A janky that you built without
-> them shows a message in place of the page. See [Installation](../installation.md).
+> The preview and the export need the web page files that `just setup` builds. A janky that you
+> built without them shows a message in place of the page, and `--export` stops with
+> `preview::no-ui`. See [Installation](../installation.md).
 
 ## show
 
@@ -582,6 +685,7 @@ explains it in full.
 | `--allow-full-sync` | off | `publish` only: allows a schema change. |
 | `--delete-removed` | off | `publish` only: deletes the notes of removed entries. |
 | `--port <port>` | `5259` | `preview` only: the port of the server on `127.0.0.1`. `0` lets your system choose a free port. |
+| `--export <DIR>` | – | `preview` only: writes the preview as static files to `DIR`, and starts no server. See [Export to a web server](#export-to-a-web-server). |
 | `--side`, `--format`, `--typed`, `--night`, `--platform`, `--sample` | – | `show` only. See [show](#show). |
 
 ### How each flag applies to each command

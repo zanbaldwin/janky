@@ -26,17 +26,19 @@ Out of scope:
 - LaTeX images (they need a LaTeX binary). MathJax is in scope.
 - The AnkiDroid JavaScript API, AnkiMobile behaviour, answer buttons, scheduling, image occlusion, and add-on
   filters.
-- Access from other computers.
+- Access from other computers. `--export` writes static files for a web server instead (see
+  [Export](#export)).
 
 ## Command line
 
 ```text
-janky preview [--port <PORT>] [--offline] [--deck <deck.toml>]
+janky preview [--port <PORT> | --export <DIR>] [--offline] [--deck <deck.toml>]
 ```
 
 | Flag | Default | Meaning |
 | --- | --- | --- |
 | `--port` | `5259` | The TCP port on `127.0.0.1`. `0` lets the operating system choose a port. |
+| `--export` | none | Write the site to this directory, and start no server. It conflicts with `--port`. |
 | `--offline` | off | The global flag. Remote note types come only from the cache. |
 | `--deck` | `deck.toml` | The global flag. The path of `deck.toml`. |
 
@@ -48,7 +50,7 @@ terminal. The plugin log lines of a page load are not shown.
 
 ## The read-only rule
 
-`janky preview` writes no file. It does not write `deck.lock`, the `.apkg`, `.janky/` or the media cache. The
+`janky preview` without `--export` writes no file. It does not write `deck.lock`, the `.apkg`, `.janky/` or the media cache. The
 only exception is the user-wide source cache, which remote note types fill in the same way as for `check`.
 
 Generators never run. The preview reads cached `media` and `enrich` results if they exist. A missing result shows
@@ -56,7 +58,7 @@ as a placeholder, in the same way as for `check`.
 
 ## Pipeline
 
-Each `GET /api/preview` request runs the pipeline again on the current files:
+Each `GET /preview.json` request runs the pipeline again on the current files:
 
 1. `cli::check` loads the project, the plugins and the content, and renders the fields.
 2. `lock::read` reads `deck.lock` if it exists. The preview continues if `deck.lock.tmp` exists. The preview uses a
@@ -71,7 +73,7 @@ The pipeline runs on one blocking worker behind a mutex, because the Lua sandbox
 at the same time run one after the other.
 
 The server keeps only the latest snapshot. A request for an older generation gets `410 Gone`, and the page then
-loads `/api/preview` again.
+loads `preview.json` again.
 
 `package::package_with` runs when `cli::check` returns `Some`, also if the diagnostics have errors. The render output
 does not have the entries that have errors, so the other entries still show.
@@ -166,19 +168,23 @@ Anki version can change the `axum` version. Bumping Anki must then also check th
 
 All routes are `GET`. Any other method gets `405`.
 
+Each route is also a file path, so that `--export` can write the same site as static files. All URLs between the
+files are relative, so the site also works below a subpath.
+
 | Route | Response |
 | --- | --- |
-| `/` | The page: `index.html` from the Vite build. |
+| `/` | The page: `index.html` from the Vite build (`base: "./"`). |
 | `/assets/{path}` | A file from the Vite build. |
-| `/api/preview` | Runs the pipeline and returns the snapshot as JSON. |
-| `/card/{generation}/{row}/{side}` | The card document for the iframe. `side` is `front` or `back`. |
-| `/media/{generation}/{name}` | A media file of the snapshot, by its Anki name. |
+| `/preview.json` | Runs the pipeline and returns the snapshot as JSON. |
+| `/{generation}/cards/{row}-{side}.html` | The card document for the iframe. `side` is `front` or `back`. |
+| `/{generation}/media/{name}` | A media file of the snapshot, by its Anki name. |
 
-### `GET /api/preview`
+### `GET /preview.json`
 
 ```json
 {
   "generation": "9f2c51d0a4e8b7c63e1f0a5d2b8c4e71",
+  "exported": false,
   "stale": false,
   "diagnostics": [ ... ],
   "rows": [
@@ -189,6 +195,7 @@ All routes are `GET`. Any other method gets `405`.
       "deck": { "key": "words", "full_name": "Japanese::Words" },
       "card": { "key": "recognition", "name": "Recognition", "ord": 0 },
       "empty": false,
+      "type_answer": false,
       "error": null
     }
   ]
@@ -201,15 +208,18 @@ All routes are `GET`. Any other method gets `405`.
   errors, so it matches the file.
 - `empty` is `true` if the front is empty, so Anki does not make the card. An example is a card with `when` that
   does not apply to the entry. The table shows these rows.
+- `type_answer` is `true` if the front has a `{{type:Field}}` input.
+- `exported` is `false` from the server, and `true` in an export.
 - `error` is the error message of the card, or `null`.
 - The rows are in deck order (as in `deck.toml`, a parent before its children), then in the order of the `content`
   patterns of the deck, then in path order, then in the order of the notes inside each file (`new_order`), then card
   ordinal. Sample rows come last, in note type order.
 - All text goes through `json_text()`, so secrets are redacted.
 
-### `GET /card/{generation}/{row}/{side}`
+### `GET /{generation}/cards/{row}-{side}.html`
 
-Query parameters:
+Query parameters. The shim reads `night` and `platform` from its own URL, so they also work for static files. The
+server reads only `typed`.
 
 | Parameter | Values | Default |
 | --- | --- | --- |
@@ -218,7 +228,8 @@ Query parameters:
 | `typed` | the typed answer. Only the back uses it. | empty |
 
 The page changes these parameters and loads the iframe again. The server keeps no state for them. An unknown value
-of `night` or `platform` gets `400`. An unknown side, or a row that is out of range or did not render, gets `404`.
+of `night` or `platform` gives the default classes. An unknown side, or a row that is out of range or did not render,
+gets `404`.
 
 ## The card document
 
@@ -230,15 +241,20 @@ The server makes one HTML document for each card side:
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <base href="/media/{generation}/">
-  <!-- tags of the Vite `card` entry, from vite-chunks: the base CSS and the reviewer shim -->
+  <base href="../media/">
+  <style>/* the CSS of the Vite `card` entry, inline */</style>
 </head>
-<body class="card card{N} {platform classes} {night classes}">
+<body class="card card{N}">
   <div id="qa"></div>
-  <script type="application/json" id="janky-card">{"html": …, "bodyclass": …, "side": …, "sounds": […]}</script>
+  <script type="application/json" id="janky-card">{"html": …, "ord": …, "side": …, "sounds": […]}</script>
+  <script type="module">/* the JS of the Vite `card` entry, inline */</script>
 </body>
 </html>
 ```
+
+The shim JS and CSS are inline, so the iframe, which has an opaque origin, needs no CORS header for them. The
+document has no generation in it. `janky show --format html` uses the same builder without `<base>`, and its card
+data has `bodyclass`, `media` and `mathjax: false`.
 
 `html` is `<style>{note type CSS}</style>{card HTML}`, as Anki's `question_and_style()` gives it. The server escapes
 each `<` in the JSON as `\u003c`, so that card HTML cannot end the `<script>` element.
@@ -246,7 +262,8 @@ each `<` in the JSON as `\u003c`, so that card HTML cannot end the `<script>` el
 The shim does not get the card HTML in the document, because Anki's reviewer also puts it in later. It follows
 `_updateQA` of `ts/reviewer/index.ts`:
 
-1. It sets `onUpdateHook` to one callback that sets the body class, and `onShownHook` to an empty array.
+1. It sets `onUpdateHook` to one callback that sets the body class (`bodyclass`, or else the classes from `ord` and
+   the query of the URL), and `onShownHook` to an empty array.
 2. It puts the HTML into `#qa` with `opacity: 0`, and replaces each `<script>` with a new element, so that it runs.
 3. It runs `onUpdateHook`, sets `opacity: 1`, and runs `onShownHook`. A hook that throws is logged.
 4. On the back, it scrolls to `#answer`.
@@ -273,7 +290,8 @@ The `card` Vite entry has the reviewer shim and MathJax:
   names the Anki tag of the source.
 - **MathJax 3.** The `tex-chtml-full` component of MathJax 3.2.2 (the version and the component of Anki's
   reviewer), with the configuration of `ts/mathjax/index.ts`. A Vite plugin copies the component and its fonts to
-  `assets/mathjax-3.2.2/`. Their names have no hash, because MathJax loads the fonts by name, so the directory has
+  `assets/mathjax-3.2.2/`. The shim loads it from `../../assets/mathjax-3.2.2`, relative to the `<base>` of the
+  card document. Their names have no hash, because MathJax loads the fonts by name, so the directory has
   the version. The shim loads MathJax only for a side that has `\(` or `\[`, after `onUpdateHook`, as Anki does.
   It needs no network access.
 - **Hooks.** `onUpdateHook` and `onShownHook` are arrays on `window`. The shim runs them in the same order as
@@ -322,8 +340,8 @@ React 19 and TypeScript, built with Vite. The source is in `crates/cli/ui/`.
   - It also writes a table of `include_bytes!` entries for each file in `ui/dist/` into `OUT_DIR`. This replaces
     `rust-embed`, which is not in the dependency tree.
 - `ui/dist/` is in `.gitignore`. The build output is not committed.
-- `vite.config.ts` has two entries, `index` and `card`, and a dev server proxy to `127.0.0.1:5259` for `/api`,
-  `/card` and `/media`.
+- `vite.config.ts` has two entries, `index` and `card`, and a dev server proxy to `127.0.0.1:5259` for
+  `/preview.json` and the generation paths.
 
 ### `justfile`
 
@@ -347,12 +365,13 @@ The preview matches the security of the rest of janky:
 - The server refuses a request with `421` if the `Host` header is not `127.0.0.1:{port}` or `localhost:{port}`.
   This stops DNS rebinding.
 - The iframe has `sandbox="allow-scripts"` without `allow-same-origin`. Card JS then has an opaque origin and
-  cannot read `/api/preview`. Card JS still has network access, as in Anki.
-- `/media/{generation}/{name}` looks up `name` in the media map of the snapshot. A URL never becomes a file path.
+  cannot read `/preview.json`. Card JS still has network access, as in Anki.
+- `/{generation}/media/{name}` looks up `name` in the media map of the snapshot. A URL never becomes a file path.
   The server reads the file in the same way as the build.
-- The iframe has an opaque origin, so its module scripts and fonts need CORS. `/assets/` and `/media/` send
-  `Access-Control-Allow-Origin: *`. Another web page can send requests to `127.0.0.1` too, because the `Host`
-  header is then correct. But it cannot read `/api/preview`, which has no CORS header, so it cannot know the
+- The iframe has an opaque origin, so its fonts and the MathJax files need CORS. The shim is inline, so it needs
+  none. `/assets/` and `/{generation}/media/` send `Access-Control-Allow-Origin: *`. Another web page can send
+  requests to `127.0.0.1` too, because the `Host` header is then correct. But it cannot read `/preview.json`, which
+  has no CORS header, so it cannot know the
   random generation in the card and media URLs. A counting generation number would let it guess them.
 - All text that comes from the project or from plugins goes through `json_text()` or the HTML escape of the
   server. Secrets are redacted.
@@ -363,13 +382,44 @@ The preview matches the security of the rest of janky:
   So the card document and the media files (for example an SVG) never run in the origin of the page, also when the
   user opens them directly.
 
+## Export
+
+`janky preview --export <DIR>` writes the site as static files (`crates/cli/src/preview/export.rs`). The user guide
+(`docs/src/cli/commands.md`) has the directory layout and an Nginx example.
+
+1. It refuses before the pipeline if the UI is not built (`preview::no-ui`), or if `DIR` is a link, a file, or a
+   directory that is not empty and has no `.janky-export` marker (`preview::export-target`).
+2. `cli::prepare`, as for `janky build`. Any error stops the export, and it writes nothing. Missing generator
+   results are warnings (`missing_media` with `strict = false`).
+3. `deck.apkg` is written only if `deck.lock` exists and `previous == next`. Otherwise the ids of the package would
+   differ from the next build, so the export gives the warning `preview::export-lock` and has no `deck.apkg`. The
+   export never writes `deck.lock`.
+4. `preview::render` with `Selection::All`. The back of each card is `compare_typed` with an empty typed answer.
+5. The files go into a new sibling directory `<DIR>.tmp-<hex>`. The cards and media go into a pending directory,
+   which gets its name when the generation is known. The generation is the first 32 hex digits of a BLAKE3 hash
+   of the rows, the card documents and the media files, each with length prefixes. The same project gives the same
+   files, except `deck.apkg`, which Anki writes differently each time.
+6. `preview.json` has `"exported": true` and no diagnostics. The marker is the last file.
+7. An absent or empty `DIR` is replaced with a rename. An earlier export is renamed to `<DIR>.old-<hex>`, the new
+   directory is renamed to `DIR`, then the old one is deleted. After an error, janky deletes the staging directory.
+
+The export is the only part of janky that writes outside the project. It never writes through a link, because it
+writes only into the directory that it made.
+
+In an export, the page does not send the typed text, and the back of a card with `type_answer` has a note that only
+`janky preview` compares the typed answer.
+
 ## Diagnostics
 
-The preview adds three error codes. `docs/src/reference/codes.md` lists them:
+The preview adds these codes. `docs/src/reference/codes.md` lists them:
 
 - `preview::bind`: the server cannot listen on the port.
 - `preview::serve`: the server stopped because of an error.
 - `preview::render`: Anki rejects a card template. The response is stale.
+- `preview::no-ui`: `--export` in a janky without the UI build.
+- `preview::export-target`: the export directory is not absent, empty, or an earlier export.
+- `preview::export-write`: the export cannot write its files.
+- `preview::export-lock` (warning): the export has no `deck.apkg`.
 
 `tests/data/errors/` has no fixtures for these codes, because those fixtures run only `cli::check`. The server tests
 cover them.
