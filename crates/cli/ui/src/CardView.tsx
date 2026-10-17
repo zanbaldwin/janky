@@ -136,7 +136,7 @@ export function CardView({ generation, exported, row, view, onView, typed, onTyp
       {row.error !== null ? (
         <pre className="card-error">{row.error}</pre>
       ) : (
-        <div className={`frame ${view.platform}`}>
+        <div className={`frame ${view.platform}${view.night ? " night-mode" : ""}`}>
           <iframe
             ref={frame}
             title={`${title} (${view.side})`}

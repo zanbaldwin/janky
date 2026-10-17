@@ -8,6 +8,8 @@
   --selected: #e4ecfa;
   --error: #b3261e;
   --warning: #8a5a00;
+  --bezel: #2a2826;
+  --shadow: rgb(31 29 26 / 0.12);
   color-scheme: light dark;
 }
 
@@ -22,6 +24,8 @@
     --selected: #24324a;
     --error: #f2948c;
     --warning: #e6b75c;
+    --bezel: #050505;
+    --shadow: rgb(0 0 0 / 0.4);
   }
 }
 
@@ -301,16 +305,32 @@ table.cards {
 iframe {
   width: 100%;
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: 8px;
   background: #ffffff;
+  box-shadow: 0 4px 16px var(--shadow);
+}
+
+.frame.night-mode iframe {
+  background: #2c2c2c;
+}
+
+.frame.android iframe,
+.frame.iphone iframe {
+  border: 10px solid var(--bezel);
+  border-radius: 36px;
+  box-shadow:
+    0 0 0 1px var(--line),
+    0 8px 24px var(--shadow);
 }
 
 .frame.android iframe {
-  width: 412px;
+  width: calc(412px + 20px);
+  max-height: calc(915px + 20px);
 }
 
 .frame.iphone iframe {
-  width: 390px;
+  width: calc(390px + 20px);
+  max-height: calc(844px + 20px);
 }
 
 .note,
