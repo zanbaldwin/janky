@@ -38,6 +38,21 @@ export function CardView({ generation, exported, row, view, onView, typed, onTyp
     <section className="view">
       <header>
         <h2>{title}</h2>
+        <div className="sides" role="group" aria-label="Side">
+          {(["front", "back"] as const).map((side) => (
+            <button
+              key={side}
+              type="button"
+              aria-pressed={view.side === side}
+              onClick={() => {
+                if (side === "front") onTyped("");
+                onView({ side });
+              }}
+            >
+              {side === "front" ? "Front" : "Back"}
+            </button>
+          ))}
+        </div>
         <div className="controls">
           <label>
             <input type="checkbox" checked={view.night} onChange={(event) => onView({ night: event.target.checked })} />
@@ -54,21 +69,6 @@ export function CardView({ generation, exported, row, view, onView, typed, onTyp
               </option>
             ))}
           </select>
-          <div className="sides" role="group" aria-label="Side">
-            {(["front", "back"] as const).map((side) => (
-              <button
-                key={side}
-                type="button"
-                aria-pressed={view.side === side}
-                onClick={() => {
-                  if (side === "front") onTyped("");
-                  onView({ side });
-                }}
-              >
-                {side === "front" ? "Front" : "Back"}
-              </button>
-            ))}
-          </div>
         </div>
       </header>
       {row.empty && <p className="note">The front is empty, so Anki does not make this card.</p>}
