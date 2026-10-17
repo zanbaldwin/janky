@@ -13,7 +13,7 @@ function source(entry: NonNullable<Row["entry"]>): string {
 
 export function CardTable({ rows, selected, onSelect }: Props) {
   function onKeyDown(event: KeyboardEvent, row: number) {
-    if (event.key === "Enter" || event.key === " ") {
+    if (event.key === "Enter" || (event.key === " " && row !== selected)) {
       event.preventDefault();
       onSelect(row);
     }

@@ -1,6 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { cardUrl, type Platform, type Row, type View } from "./api";
-import type { TypedMessage } from "./card/reviewer";
+import type { FlipMessage, TypedMessage } from "./card/reviewer";
+import { isFlipKey } from "./flip";
 
 interface Props {
   generation: string;
@@ -21,24 +22,51 @@ const PLATFORMS: { value: Platform; label: string }[] = [
 export function CardView({ generation, exported, row, view, onView, typed, onTyped }: Props) {
   const title = [row.notetype.name, row.entry?.id ?? "sample", row.card.name].join(" · ");
   const frame = useRef<HTMLIFrameElement>(null);
+  const other = view.side === "front" ? "back" : "front";
+
+  const showSide = useCallback(
+    (side: View["side"]) => {
+      if (side === "front") onTyped("");
+      onView({ side });
+    },
+    [onTyped, onView],
+  );
 
   useEffect(() => {
     function onMessage(event: MessageEvent) {
       if (event.source === null || event.source !== frame.current?.contentWindow) return;
-      const message = event.data as Partial<TypedMessage>;
+      const message = event.data as Partial<TypedMessage> | Partial<FlipMessage>;
+      if (message.kind === "janky-flip") showSide(other);
       if (message.kind !== "janky-typed" || typeof message.text !== "string") return;
       onTyped(message.text);
       if (message.answer === true) onView({ side: "back" });
     }
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
-  }, [onTyped, onView]);
+  }, [onTyped, onView, showSide, other]);
+
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if (!isFlipKey(event)) return;
+      event.preventDefault();
+      showSide(other);
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [showSide, other]);
 
   return (
     <section className="view">
       <header>
         <h2>{title}</h2>
-        <div className="sides" role="group" aria-label="Side" data-side={view.side}>
+        <div
+          className="sides"
+          role="group"
+          aria-label="Side"
+          aria-keyshortcuts="Space"
+          title="Space flips the card"
+          data-side={view.side}
+        >
           <svg className="flip" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M8 3 4 7l4 4M4 7h16M16 21l4-4-4-4M20 17H4" />
           </svg>
@@ -48,10 +76,7 @@ export function CardView({ generation, exported, row, view, onView, typed, onTyp
                 key={side}
                 type="button"
                 aria-pressed={view.side === side}
-                onClick={() => {
-                  if (side === "front") onTyped("");
-                  onView({ side });
-                }}
+                onClick={() => showSide(side)}
               >
                 {side === "front" ? "Front" : "Back"}
               </button>

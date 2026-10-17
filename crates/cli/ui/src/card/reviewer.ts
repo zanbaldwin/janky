@@ -1,5 +1,6 @@
 // The parts of Anki's reviewer (ts/reviewer/index.ts of Anki 26.08.1) that card HTML and card JS depend on.
 
+import { isFlipKey } from "./flip";
 import { hasMath, typeset } from "./mathjax";
 import { resolveMedia, type Media } from "./media";
 import { command, playButtons, type Sound } from "./sound";
@@ -27,6 +28,21 @@ function typed(answer: boolean): void {
   const text = input instanceof HTMLInputElement ? input.value : "";
   const message: TypedMessage = { kind: "janky-typed", text, answer };
   window.parent.postMessage(message, new URL(window.location.href).origin);
+}
+
+/** A message from the card document to the page: Space was pressed in the card, so show the other side. */
+export interface FlipMessage {
+  kind: "janky-flip";
+}
+
+/** Sends Space in the card document to the page, which has the focus only when the user clicks outside the card. */
+export function forwardFlips(): void {
+  document.addEventListener("keydown", (event) => {
+    if (!isFlipKey(event)) return;
+    event.preventDefault();
+    const message: FlipMessage = { kind: "janky-flip" };
+    window.parent.postMessage(message, new URL(window.location.href).origin);
+  });
 }
 
 export interface CardData {
