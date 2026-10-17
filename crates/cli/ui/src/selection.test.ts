@@ -10,6 +10,7 @@ function row(row: number, entry: string | null, card = "Recognition"): Row {
     deck: entry === null ? null : { key: "words", full_name: "日本語::Words" },
     card: { key: card.toLowerCase(), name: card, ord: 0 },
     empty: false,
+    type_answer: false,
     error: null,
   };
 }

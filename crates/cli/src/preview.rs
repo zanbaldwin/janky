@@ -505,6 +505,7 @@ impl Shared {
         }
         json_text(&json!({
             "generation": snapshot.generation,
+            "exported": false,
             "stale": stale,
             "diagnostics": diagnostics.iter().map(Diagnostic::to_json).collect::<Vec<_>>(),
             "rows": snapshot.rows,
@@ -638,6 +639,7 @@ fn row_json(index: usize, row: &Row) -> Value {
         "deck": row.deck.as_ref().map(|(key, full_name)| json!({ "key": key, "full_name": full_name })),
         "card": { "key": row.card_key, "name": row.card_name, "ord": row.ord },
         "empty": row.rendered.as_ref().is_ok_and(|card| card.is_empty),
+        "type_answer": row.rendered.as_ref().is_ok_and(|card| card.type_answer.is_some()),
         "error": row.rendered.as_ref().err(),
     })
 }

@@ -71,6 +71,7 @@ fn preview_returns_one_row_for_each_card_of_the_example_project() {
     let address = start(&dir);
     let json = preview(address);
     assert_eq!(json["stale"], false);
+    assert_eq!(json["exported"], false);
     let generation = json["generation"].as_str().unwrap();
     assert!(generation.len() == 32 && generation.bytes().all(|byte| byte.is_ascii_hexdigit()), "{generation}");
     assert!(errors(&json).is_empty(), "{json}");
@@ -83,6 +84,7 @@ fn preview_returns_one_row_for_each_card_of_the_example_project() {
         assert!(row["deck"]["full_name"].as_str().unwrap().starts_with("Periodic Table::"), "{row}");
         assert!(row["empty"] == false || row["card"]["key"] == "production", "{row}");
         assert_eq!(row["error"], Value::Null);
+        assert_eq!(row["type_answer"], false);
     }
     assert!(rows.iter().any(|row| row["empty"] == true), "a card with `when` gives an empty front");
     let notetypes: Vec<&str> = rows.iter().map(|row| row["notetype"]["key"].as_str().unwrap()).collect();
@@ -447,6 +449,7 @@ fn preview_compares_the_typed_answer_on_the_back() {
     let json = preview(address);
     let generation = json["generation"].as_str().unwrap();
     let row = rows(&json).iter().position(|row| row["entry"]["id"] == "halogens").unwrap();
+    assert_eq!(rows(&json)[row]["type_answer"], true);
     let host = address.to_string();
 
     let (_, _, body) = request(address, "GET", &format!("/{generation}/cards/{row}-front.html"), &host);

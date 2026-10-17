@@ -80,6 +80,7 @@ export function App() {
         ) : (
           <CardView
             generation={preview.generation}
+            exported={preview.exported}
             row={row}
             view={selection}
             onView={view}

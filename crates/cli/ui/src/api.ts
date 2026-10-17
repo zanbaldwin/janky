@@ -24,12 +24,16 @@ export interface Row {
   card: { key: string; name: string; ord: number };
   /** The front is empty, so Anki does not make this card. */
   empty: boolean;
+  /** The front has a `{{type:Field}}` input. */
+  type_answer: boolean;
   error: string | null;
 }
 
 export interface Preview {
   /** Random hex. Card and media URLs of an older generation get `410 Gone`. */
   generation: string;
+  /** Static files from `janky preview --export`, without a server that compares typed answers. */
+  exported: boolean;
   /** The project did not load, so `rows` are from an earlier page load. */
   stale: boolean;
   diagnostics: Diagnostic[];

@@ -4,6 +4,7 @@ import type { TypedMessage } from "./card/reviewer";
 
 interface Props {
   generation: string;
+  exported: boolean;
   row: Row;
   view: View;
   onView: (view: Partial<View>) => void;
@@ -17,7 +18,7 @@ const PLATFORMS: { value: Platform; label: string }[] = [
   { value: "iphone", label: "iPhone" },
 ];
 
-export function CardView({ generation, row, view, onView, typed, onTyped }: Props) {
+export function CardView({ generation, exported, row, view, onView, typed, onTyped }: Props) {
   const title = [row.notetype.name, row.entry?.id ?? "sample", row.card.name].join(" · ");
   const frame = useRef<HTMLIFrameElement>(null);
 
@@ -71,6 +72,11 @@ export function CardView({ generation, row, view, onView, typed, onTyped }: Prop
         </div>
       </header>
       {row.empty && <p className="note">The front is empty, so Anki does not make this card.</p>}
+      {exported && row.type_answer && view.side === "back" && (
+        <p className="note">
+          Only <code>janky preview</code> compares the typed answer. This back shows the expected answer.
+        </p>
+      )}
       {row.error !== null ? (
         <pre className="card-error">{row.error}</pre>
       ) : (
@@ -79,7 +85,7 @@ export function CardView({ generation, row, view, onView, typed, onTyped }: Prop
             ref={frame}
             title={`${title} (${view.side})`}
             sandbox="allow-scripts"
-            src={cardUrl(generation, row.row, view, typed)}
+            src={cardUrl(generation, row.row, view, exported ? "" : typed)}
           />
         </div>
       )}
