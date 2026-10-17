@@ -469,3 +469,180 @@ fn preview_compares_the_typed_answer_on_the_back() {
     let html = card_data(&body)["html"].as_str().unwrap().to_string();
     assert!(html.contains("<code id=typeans>forms salts</code>"), "{html}");
 }
+
+fn export(dir: &Path, out: &Path) -> (janky_cli::diagnostic::Diagnostics, Vec<String>) {
+    let mut diagnostics = janky_cli::diagnostic::Diagnostics::default();
+    let mut messages = Vec::new();
+    janky_cli::preview::export(
+        &dir.join("deck.toml"),
+        Default::default(),
+        out,
+        &mut diagnostics,
+        &mut messages,
+        &mut Vec::new(),
+    );
+    (diagnostics, messages)
+}
+
+fn export_codes(diagnostics: &janky_cli::diagnostic::Diagnostics) -> Vec<String> {
+    diagnostics
+        .iter()
+        .filter(|diagnostic| diagnostic.to_json()["severity"] == "error")
+        .map(|diagnostic| diagnostic.to_json()["code"].as_str().unwrap().to_string())
+        .collect()
+}
+
+/// The files below `dir` by their relative path.
+fn files(dir: &Path) -> Vec<(String, Vec<u8>)> {
+    let mut files: Vec<(String, Vec<u8>)> = common::tree(dir)
+        .into_iter()
+        .map(|(path, bytes)| (path.strip_prefix(dir).unwrap().to_string_lossy().into_owned(), bytes))
+        .collect();
+    files.sort();
+    files
+}
+
+fn siblings(out: &Path) -> Vec<String> {
+    let mut names: Vec<String> = std::fs::read_dir(out.parent().unwrap())
+        .unwrap()
+        .map(|entry| entry.unwrap().file_name().to_string_lossy().into_owned())
+        .collect();
+    names.sort();
+    names
+}
+
+#[test]
+fn export_writes_the_preview_as_static_files() {
+    if !janky_cli::preview::ui_built() {
+        return;
+    }
+    let (work, dir) = common::example();
+    let out = work.path().join("site");
+    let (diagnostics, messages) = export(&dir, &out);
+    assert!(export_codes(&diagnostics).is_empty(), "{:?}", export_codes(&diagnostics));
+    assert!(messages.iter().any(|message| message.starts_with("wrote ")), "{messages:?}");
+
+    let json: Value = serde_json::from_slice(&std::fs::read(out.join("preview.json")).unwrap()).unwrap();
+    assert_eq!(json["exported"], true);
+    assert_eq!(json["stale"], false);
+    assert_eq!(json["diagnostics"], serde_json::json!([]));
+    assert_eq!(rows(&json).len(), card_count(&dir));
+    let generation = json["generation"].as_str().unwrap();
+    assert!(generation.len() == 32 && generation.bytes().all(|byte| byte.is_ascii_hexdigit()), "{generation}");
+
+    assert!(std::fs::read_to_string(out.join("index.html")).unwrap().contains("<title>janky preview</title>"));
+    assert!(out.join(".janky-export").is_file());
+    for row in 0..rows(&json).len() {
+        for side in ["front", "back"] {
+            let body = std::fs::read_to_string(out.join(format!("{generation}/cards/{row}-{side}.html"))).unwrap();
+            assert!(body.contains("<base href=\"../media/\">"), "{body}");
+            assert_eq!(card_data(&body)["side"], side);
+        }
+    }
+    assert_eq!(
+        std::fs::read(out.join(format!("{generation}/media/diamond.png"))).unwrap(),
+        std::fs::read(dir.join("media/images/diamond.png")).unwrap()
+    );
+    assert_eq!(siblings(&out), ["example", "site"]);
+}
+
+#[test]
+fn export_gives_the_same_files_for_the_same_project() {
+    if !janky_cli::preview::ui_built() {
+        return;
+    }
+    let (work, dir) = common::example();
+    let (first, second) = (work.path().join("first"), work.path().join("second"));
+    export(&dir, &first);
+    export(&dir, &second);
+    assert_eq!(files(&first), files(&second));
+}
+
+#[test]
+fn export_writes_no_files_in_the_project() {
+    if !janky_cli::preview::ui_built() {
+        return;
+    }
+    let (work, dir) = common::example();
+    let before = common::tree(&dir);
+    export(&dir, &work.path().join("site"));
+    assert_eq!(common::tree(&dir), before);
+}
+
+#[test]
+fn export_refuses_a_project_with_errors_and_writes_nothing() {
+    if !janky_cli::preview::ui_built() {
+        return;
+    }
+    let (work, dir) = common::example();
+    edit(&dir.join("content/groups/basics.toml"), "property = 'forms salts'\n", "");
+    let out = work.path().join("site");
+    let (diagnostics, _) = export(&dir, &out);
+    assert!(!export_codes(&diagnostics).is_empty());
+    assert!(!out.exists());
+    assert_eq!(siblings(&out), ["example"]);
+}
+
+#[test]
+fn export_refuses_a_directory_that_is_not_an_earlier_export() {
+    if !janky_cli::preview::ui_built() {
+        return;
+    }
+    let (work, dir) = common::example();
+    let full = work.path().join("full");
+    std::fs::create_dir(&full).unwrap();
+    std::fs::write(full.join("keep.txt"), "mine").unwrap();
+    let file = work.path().join("file");
+    std::fs::write(&file, "mine").unwrap();
+    let link = work.path().join("link");
+    std::os::unix::fs::symlink(work.path().join("elsewhere"), &link).unwrap();
+    for out in [&full, &file, &link] {
+        let (diagnostics, _) = export(&dir, out);
+        assert_eq!(export_codes(&diagnostics), ["preview::export-target"], "{}", out.display());
+    }
+    assert_eq!(std::fs::read_to_string(full.join("keep.txt")).unwrap(), "mine");
+    assert!(!work.path().join("elsewhere").exists());
+    assert_eq!(siblings(&full), ["example", "file", "full", "link"]);
+}
+
+#[test]
+fn export_replaces_an_earlier_export_and_fills_an_empty_directory() {
+    if !janky_cli::preview::ui_built() {
+        return;
+    }
+    let (work, dir) = common::example();
+    let out = work.path().join("site");
+    std::fs::create_dir(&out).unwrap();
+    let (diagnostics, _) = export(&dir, &out);
+    assert!(export_codes(&diagnostics).is_empty(), "{:?}", export_codes(&diagnostics));
+    let first = files(&out);
+    std::fs::write(out.join("stray.txt"), "old").unwrap();
+    edit(&dir.join("content/groups/basics.toml"), "property = 'forms salts'", "property = 'forms many salts'");
+    let (diagnostics, _) = export(&dir, &out);
+    assert!(export_codes(&diagnostics).is_empty(), "{:?}", export_codes(&diagnostics));
+    assert!(!out.join("stray.txt").exists());
+    assert_ne!(files(&out), first);
+    assert_eq!(siblings(&out), ["example", "site"]);
+}
+
+#[test]
+fn export_shows_the_expected_answer_without_a_comparison() {
+    if !janky_cli::preview::ui_built() {
+        return;
+    }
+    let (work, dir) = common::example();
+    let cards = dir.join("notetypes/group/cards");
+    let front = std::fs::read_to_string(cards.join("group.front.html")).unwrap();
+    std::fs::write(cards.join("group.front.html"), format!("{front}{{{{type:Property}}}}")).unwrap();
+    std::fs::write(cards.join("group.back.html"), "{{FrontSide}}<hr id=answer>{{type:Property}}").unwrap();
+    let out = work.path().join("site");
+    export(&dir, &out);
+    let json: Value = serde_json::from_slice(&std::fs::read(out.join("preview.json")).unwrap()).unwrap();
+    let generation = json["generation"].as_str().unwrap();
+    let row = rows(&json).iter().position(|row| row["entry"]["id"] == "halogens").unwrap();
+    assert_eq!(rows(&json)[row]["type_answer"], true);
+    let body = std::fs::read_to_string(out.join(format!("{generation}/cards/{row}-back.html"))).unwrap();
+    let html = card_data(&body)["html"].as_str().unwrap().to_string();
+    assert!(html.contains("<code id=typeans>forms salts</code>"), "{html}");
+    assert!(!html.contains("typeBad") && !html.contains("[[type:"), "{html}");
+}

@@ -53,6 +53,10 @@ use crate::diagnostic::{Diagnostic, Diagnostics, json_text, visible};
 use crate::lock::{self, LockFile};
 use crate::{package, project};
 
+mod export;
+
+pub use export::export;
+
 /// The files of the UI build, by their URL path without the first `/`.
 static ASSETS: &[(&str, &[u8])] = include!(concat!(env!("OUT_DIR"), "/assets.rs"));
 
@@ -308,14 +312,14 @@ async fn card(
             return (StatusCode::NOT_FOUND, "the card did not render").into_response();
         };
         if question {
-            document(card, &rendered.question.html, &rendered.question.sounds, side)
+            document(&card.css, card.ord, &rendered.question.html, &rendered.question.sounds, side)
         } else {
             let typed = query.typed.as_deref().unwrap_or_default();
             let html = match janky_anki::compare_typed(&rendered.answer.html, rendered.type_answer.as_ref(), typed) {
                 Ok(html) => html,
                 Err(error) => return (StatusCode::INTERNAL_SERVER_ERROR, error.0).into_response(),
             };
-            document(card, &html, &rendered.answer.sounds, side)
+            document(&card.css, card.ord, &html, &rendered.answer.sounds, side)
         }
     };
     (
@@ -332,9 +336,9 @@ async fn card(
 
 /// The document of one card side, below `{generation}/cards/`. The shim takes the night and platform classes from
 /// the query of the URL.
-fn document(card: &Card, html: &str, sounds: &[Sound], side: &str) -> String {
-    let data = card_json(&card.css, html, sounds, card.ord, side);
-    card_document(&data, &format!("card card{}", card.ord + 1), Some("../media/"))
+fn document(css: &str, ord: usize, html: &str, sounds: &[Sound], side: &str) -> String {
+    let data = card_json(css, html, sounds, ord, side);
+    card_document(&data, &format!("card card{}", ord + 1), Some("../media/"))
 }
 
 /// A card document with the CSS and the JS of the shim inline, so that it needs no CORS header. The card data is JSON

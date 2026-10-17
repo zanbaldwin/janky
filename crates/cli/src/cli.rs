@@ -170,14 +170,19 @@ pub enum Command {
         #[arg(long)]
         delete_removed: bool,
     },
-    /// Show every card of the project in the browser, and write nothing.
+    /// Show every card of the project in the browser, and write nothing, unless --export.
     ///
     /// Starts a web server on 127.0.0.1 that renders each card with Anki's template renderer.
     /// Reload the page to read the files again. Generators do not run. Ctrl+C stops the server.
+    /// With --export, writes the preview as static files for a web server such as Nginx.
     Preview {
         /// The TCP port on 127.0.0.1. 0 lets the operating system choose a port.
         #[arg(long, default_value_t = 5259)]
         port: u16,
+        /// Write the preview as static files to this directory, and start no server. The directory
+        /// must not exist, be empty, or be an earlier export, which the export replaces.
+        #[arg(long, value_name = "DIR", conflicts_with = "port")]
+        export: Option<PathBuf>,
     },
     /// Print the cards of one entry as text, or as JSON with --json, and write nothing.
     ///
@@ -336,7 +341,12 @@ pub fn run(cli: &Cli) -> ExitCode {
             };
             printed = crate::show::show(&cli.project, options, &request, &mut diagnostics);
         },
-        Command::Preview { port } => crate::preview::serve(&cli.project, options, *port, &mut diagnostics),
+        Command::Preview { port, export: None } => {
+            crate::preview::serve(&cli.project, options, *port, &mut diagnostics)
+        },
+        Command::Preview { export: Some(dir), .. } => {
+            crate::preview::export(&cli.project, options, dir, &mut diagnostics, &mut messages, &mut log)
+        },
         Command::Pull => crate::publish::pull_media(cli, options, &mut diagnostics, &mut messages, &mut log),
         Command::Publish {
             yes,
