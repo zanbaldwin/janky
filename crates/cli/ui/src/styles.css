@@ -169,27 +169,70 @@ table.cards {
   white-space: nowrap;
 }
 
-.sides button {
-  padding: 4px 12px;
+.sides {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 3px 3px 3px 10px;
   border: 1px solid var(--line);
+  border-radius: 999px;
   background: var(--surface);
-  color: inherit;
+}
+
+.flip {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: var(--muted);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.segments {
+  display: grid;
+  position: relative;
+  grid-template-columns: 1fr 1fr;
+}
+
+.segments::before {
+  position: absolute;
+  inset: 0 50% 0 0;
+  border-radius: 999px;
+  background: var(--selected);
+  content: "";
+  transition: transform 150ms ease;
+}
+
+.sides[data-side="back"] .segments::before {
+  transform: translateX(100%);
+}
+
+.sides button {
+  position: relative;
+  min-width: 72px;
+  padding: 5px 16px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--muted);
   font: inherit;
   cursor: pointer;
 }
 
-.sides button:first-child {
-  border-radius: 4px 0 0 4px;
-}
-
-.sides button:last-child {
-  border-left: 0;
-  border-radius: 0 4px 4px 0;
+.sides button:hover {
+  color: var(--text);
 }
 
 .sides button[aria-pressed="true"] {
-  background: var(--accent);
-  color: var(--surface);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .segments::before {
+    transition: none;
+  }
 }
 
 .controls {

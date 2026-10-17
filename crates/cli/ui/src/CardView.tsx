@@ -38,20 +38,25 @@ export function CardView({ generation, exported, row, view, onView, typed, onTyp
     <section className="view">
       <header>
         <h2>{title}</h2>
-        <div className="sides" role="group" aria-label="Side">
-          {(["front", "back"] as const).map((side) => (
-            <button
-              key={side}
-              type="button"
-              aria-pressed={view.side === side}
-              onClick={() => {
-                if (side === "front") onTyped("");
-                onView({ side });
-              }}
-            >
-              {side === "front" ? "Front" : "Back"}
-            </button>
-          ))}
+        <div className="sides" role="group" aria-label="Side" data-side={view.side}>
+          <svg className="flip" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8 3 4 7l4 4M4 7h16M16 21l4-4-4-4M20 17H4" />
+          </svg>
+          <div className="segments">
+            {(["front", "back"] as const).map((side) => (
+              <button
+                key={side}
+                type="button"
+                aria-pressed={view.side === side}
+                onClick={() => {
+                  if (side === "front") onTyped("");
+                  onView({ side });
+                }}
+              >
+                {side === "front" ? "Front" : "Back"}
+              </button>
+            ))}
+          </div>
         </div>
         <div className="controls">
           <label>
