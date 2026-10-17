@@ -233,6 +233,16 @@ table.cards {
   cursor: pointer;
 }
 
+.pill.icons button {
+  min-width: 0;
+  padding: 5px 12px;
+}
+
+.pill.icons .icon {
+  width: 16px;
+  height: 16px;
+}
+
 .pill button:hover,
 .night:hover {
   color: var(--text);

@@ -107,19 +107,20 @@ export function CardView({ generation, exported, row, view, onView, typed, onTyp
               <path d={view.night ? MOON : SUN} />
             </svg>
           </button>
-          <div className="pill" role="group" aria-label="Platform">
+          <div className="pill icons" role="group" aria-label="Platform">
             <div className={view.platform === "desktop" ? "segments" : "segments end"}>
               {PLATFORMS.map((platform) => (
                 <button
                   key={platform.value}
                   type="button"
+                  aria-label={platform.label}
+                  title={platform.label}
                   aria-pressed={(view.platform === "desktop") === (platform.value === "desktop")}
                   onClick={() => onView({ platform: platform.value })}
                 >
                   <svg className="icon" viewBox="0 0 24 24" aria-hidden="true">
                     <path d={platform.icon} />
                   </svg>
-                  {platform.label}
                 </button>
               ))}
             </div>
