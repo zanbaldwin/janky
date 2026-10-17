@@ -1,4 +1,10 @@
-import type { Diagnostic } from "./api";
+import type { Diagnostic, Severity } from "./api";
+
+const SEVERITIES: { severity: Severity; one: string; many: string }[] = [
+  { severity: "error", one: "error", many: "errors" },
+  { severity: "warning", one: "warning", many: "warnings" },
+  { severity: "info", one: "info", many: "info" },
+];
 
 function location(diagnostic: Diagnostic): string | null {
   if (diagnostic.file === null) return null;
@@ -29,11 +35,18 @@ function Item({ diagnostic }: { diagnostic: Diagnostic }) {
 
 export function Diagnostics({ diagnostics }: { diagnostics: Diagnostic[] }) {
   if (diagnostics.length === 0) return null;
-  const errors = diagnostics.filter((diagnostic) => diagnostic.severity === "error").length;
+  const count = (severity: Severity) => diagnostics.filter((diagnostic) => diagnostic.severity === severity).length;
   return (
-    <details className="diagnostics" open={errors > 0}>
+    <details className="diagnostics" open={count("error") > 0}>
       <summary>
-        {errors} {errors === 1 ? "error" : "errors"}, {diagnostics.length - errors} other
+        <svg className="icon chevron" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m9 6 6 6-6 6" />
+        </svg>
+        {SEVERITIES.filter(({ severity }) => count(severity) > 0).map(({ severity, one, many }) => (
+          <span key={severity} className={`chip ${severity}`}>
+            {count(severity)} {count(severity) === 1 ? one : many}
+          </span>
+        ))}
       </summary>
       <ul>
         {diagnostics.map((diagnostic, index) => (

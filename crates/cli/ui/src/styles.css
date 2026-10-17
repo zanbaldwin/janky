@@ -372,6 +372,53 @@ iframe {
   padding: 12px;
 }
 
+.diagnostics summary {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  list-style: none;
+  cursor: pointer;
+}
+
+.diagnostics summary::-webkit-details-marker {
+  display: none;
+}
+
+.chevron {
+  color: var(--muted);
+  transition: transform 150ms ease;
+}
+
+.diagnostics[open] .chevron {
+  transform: rotate(90deg);
+}
+
+.chip {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.chip.error {
+  color: var(--error);
+}
+
+.chip.warning {
+  color: var(--warning);
+}
+
+.chip.info {
+  color: var(--muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chevron {
+    transition: none;
+  }
+}
+
 .diagnostics ul {
   margin: 4px 0;
   padding-left: 16px;
