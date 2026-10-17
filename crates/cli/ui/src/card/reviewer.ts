@@ -32,7 +32,10 @@ function typed(answer: boolean): void {
 export interface CardData {
   /** The note type CSS in a `<style>` element, then the card HTML, as Anki's `question_and_style()` gives it. */
   html: string;
-  bodyclass: string;
+  /** The card ordinal, from 0. */
+  ord: number;
+  /** The classes of the body. Without it, they come from `ord` and the query of the document URL. */
+  bodyclass?: string;
   side: "front" | "back";
   /** The sounds of the play tags of this side, by their number. */
   sounds: Sound[];
@@ -40,6 +43,16 @@ export interface CardData {
   media?: Media;
   /** `false` in a document without a server, where MathJax cannot load its fonts. */
   mathjax?: boolean;
+}
+
+/** The classes of the card body, as Anki's reviewer sets them (`body_class` in crates/cli/src/preview.rs), from the
+ * `night` and `platform` parameters of `search`. */
+export function bodyClass(ord: number, search: string): string {
+  const query = new URLSearchParams(search);
+  const platforms: Record<string, string> = { android: "mobile android", iphone: "mobile iphone" };
+  const platform = platforms[query.get("platform") ?? ""] ?? "isLin";
+  const night = query.get("night") === "1" ? " nightMode night_mode" : "";
+  return `card card${ord + 1} ${platform}${night}`;
 }
 
 /** Calls each hook. A hook that throws is logged, and the other hooks still run. */
@@ -103,7 +116,7 @@ export async function show(data: CardData): Promise<void> {
   window.onUpdateHook = [
     () => {
       window.scrollTo(0, 0);
-      document.body.className = data.bodyclass;
+      document.body.className = data.bodyclass ?? bodyClass(data.ord, window.location.search);
     },
   ];
   window.onShownHook =

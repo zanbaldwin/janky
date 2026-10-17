@@ -47,14 +47,14 @@ export interface View {
 }
 
 export async function fetchPreview(signal?: AbortSignal): Promise<Preview> {
-  const response = await fetch("/api/preview", { cache: "no-store", signal });
-  if (!response.ok) throw new Error(`/api/preview answered ${response.status}`);
+  const response = await fetch("preview.json", { cache: "no-store", signal });
+  if (!response.ok) throw new Error(`preview.json answered ${response.status}`);
   return (await response.json()) as Preview;
 }
 
-/** The URL of the card document. `typed` is the typed answer, which only the back uses. */
+/** The URL of the card document, relative to the page. `typed` is the typed answer, which only the back uses. */
 export function cardUrl(generation: string, row: number, view: View, typed: string): string {
   const query = new URLSearchParams({ night: view.night ? "1" : "0", platform: view.platform });
   if (view.side === "back" && typed !== "") query.set("typed", typed);
-  return `/card/${generation}/${row}/${view.side}?${query}`;
+  return `${generation}/cards/${row}-${view.side}.html?${query}`;
 }

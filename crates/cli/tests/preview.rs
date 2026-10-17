@@ -31,7 +31,7 @@ fn request(address: SocketAddr, method: &str, path: &str, host: &str) -> (u16, S
 }
 
 fn preview(address: SocketAddr) -> Value {
-    let (status, head, body) = request(address, "GET", "/api/preview", &address.to_string());
+    let (status, head, body) = request(address, "GET", "/preview.json", &address.to_string());
     assert_eq!(status, 200, "{body}");
     assert!(head.contains("content-type: application/json"), "{head}");
     assert!(head.contains("cache-control: no-store"), "{head}");
@@ -157,10 +157,10 @@ fn preview_refuses_a_foreign_host_header() {
         format!("evil.example:{port}"),
         format!("127.0.0.1:{}", port + 1),
     ] {
-        let (status, _, _) = request(address, "GET", "/api/preview", &host);
+        let (status, _, _) = request(address, "GET", "/preview.json", &host);
         assert_eq!(status, 421, "{host}");
     }
-    let (status, _, _) = request(address, "GET", "/api/preview", &format!("localhost:{port}"));
+    let (status, _, _) = request(address, "GET", "/preview.json", &format!("localhost:{port}"));
     assert_eq!(status, 200);
 }
 
@@ -168,7 +168,7 @@ fn preview_refuses_a_foreign_host_header() {
 fn preview_refuses_other_methods() {
     let (_work, dir) = common::example();
     let address = start(&dir);
-    let (status, _, _) = request(address, "POST", "/api/preview", &address.to_string());
+    let (status, _, _) = request(address, "POST", "/preview.json", &address.to_string());
     assert_eq!(status, 405);
 }
 
@@ -279,56 +279,58 @@ fn preview_serves_a_card_document() {
     let generation = json["generation"].as_str().unwrap();
     let row = first_row_of(&json, "element");
     let (status, head, body) =
-        request(address, "GET", &format!("/card/{generation}/{row}/front"), &address.to_string());
+        request(address, "GET", &format!("/{generation}/cards/{row}-front.html"), &address.to_string());
     assert_eq!(status, 200, "{body}");
     assert!(head.contains("content-type: text/html; charset=utf-8"), "{head}");
     assert!(head.contains("content-security-policy: sandbox allow-scripts"), "{head}");
     assert!(head.contains("cache-control: no-store"), "{head}");
-    assert!(body.contains(&format!("<base href=\"/media/{generation}/\">")), "{body}");
-    assert!(body.contains("<body class=\"card card1 isLin\">"), "{body}");
+    assert!(body.contains("<base href=\"../media/\">"), "{body}");
+    assert!(body.contains("<body class=\"card card1\">"), "{body}");
+    assert!(!body.contains(generation), "the document has only relative URLs: {body}");
+    assert!(!body.contains(" src="), "the shim is inline: {body}");
     let data = card_data(&body);
-    assert_eq!(data["bodyclass"], "card card1 isLin");
+    assert_eq!(data["ord"], 0);
+    assert_eq!(data["bodyclass"], Value::Null);
     assert_eq!(data["side"], "front");
     let html = data["html"].as_str().unwrap();
     assert!(html.starts_with("<style>.card { font-family: sans-serif; }"), "{html}");
 }
 
 #[test]
-fn preview_sets_the_night_and_platform_classes() {
+fn preview_leaves_the_night_and_platform_classes_to_the_shim() {
     let (_work, dir) = common::example();
     let address = start(&dir);
     let json = preview(address);
     let generation = json["generation"].as_str().unwrap();
     let row = row_with_ord(&json, 1);
-    for (query, class) in [
-        ("night=1&platform=android", "card card2 mobile android nightMode night_mode"),
-        ("night=0&platform=iphone", "card card2 mobile iphone"),
-        ("platform=desktop", "card card2 isLin"),
-    ] {
-        let path = format!("/card/{generation}/{row}/back?{query}");
-        let (status, _, body) = request(address, "GET", &path, &address.to_string());
+    let host = address.to_string();
+    let (_, _, plain) = request(address, "GET", &format!("/{generation}/cards/{row}-back.html"), &host);
+    assert_eq!(card_data(&plain)["ord"], 1);
+    assert_eq!(card_data(&plain)["side"], "back");
+    for query in ["night=1&platform=android", "night=yes&platform=symbian"] {
+        let path = format!("/{generation}/cards/{row}-back.html?{query}");
+        let (status, _, body) = request(address, "GET", &path, &host);
         assert_eq!(status, 200, "{body}");
-        assert_eq!(card_data(&body)["bodyclass"], class);
-        assert_eq!(card_data(&body)["side"], "back");
+        assert_eq!(body, plain, "{query}");
     }
 }
 
 #[test]
-fn preview_refuses_an_unknown_side_platform_or_row() {
+fn preview_refuses_an_unknown_side_or_row() {
     let (_work, dir) = common::example();
     let address = start(&dir);
     let json = preview(address);
     let generation = json["generation"].as_str().unwrap();
     let host = address.to_string();
-    for (path, expected) in [
-        (format!("/card/{generation}/0/middle"), 404),
-        (format!("/card/{generation}/0/front?platform=symbian"), 400),
-        (format!("/card/{generation}/0/front?night=yes"), 400),
-        (format!("/card/{generation}/9999/front"), 404),
-        (format!("/card/{generation}/first/front"), 400),
+    for path in [
+        format!("/{generation}/cards/0-middle.html"),
+        format!("/{generation}/cards/0-front"),
+        format!("/{generation}/cards/9999-front.html"),
+        format!("/{generation}/cards/first-front.html"),
+        format!("/{generation}/cards/0/front.html"),
     ] {
         let (status, _, _) = request(address, "GET", &path, &host);
-        assert_eq!(status, expected, "{path}");
+        assert_eq!(status, 404, "{path}");
     }
 }
 
@@ -343,7 +345,8 @@ fn preview_escapes_the_card_data() {
     let json = preview(address);
     let generation = json["generation"].as_str().unwrap();
     let row = first_row_of(&json, "element");
-    let (status, _, body) = request(address, "GET", &format!("/card/{generation}/{row}/front"), &address.to_string());
+    let (status, _, body) =
+        request(address, "GET", &format!("/{generation}/cards/{row}-front.html"), &address.to_string());
     assert_eq!(status, 200);
     assert!(card_data(&body)["html"].as_str().unwrap().contains("</script><script>parent.x = 1</script>"));
 }
@@ -355,7 +358,7 @@ fn preview_serves_a_media_file_of_the_snapshot() {
     let json = preview(address);
     let generation = json["generation"].as_str().unwrap();
     let (status, head, body) =
-        request_bytes(address, "GET", &format!("/media/{generation}/diamond.png"), &address.to_string());
+        request_bytes(address, "GET", &format!("/{generation}/media/diamond.png"), &address.to_string());
     assert_eq!(status, 200);
     assert!(head.contains("content-type: image/png"), "{head}");
     assert!(head.contains("access-control-allow-origin: *"), "{head}");
@@ -379,7 +382,7 @@ fn preview_refuses_a_media_name_that_is_not_in_the_snapshot() {
         "%2E%2E",
         "missing.png",
     ] {
-        let (status, _, _) = request(address, "GET", &format!("/media/{generation}/{name}"), &address.to_string());
+        let (status, _, _) = request(address, "GET", &format!("/{generation}/media/{name}"), &address.to_string());
         assert_eq!(status, 404, "{name}");
     }
 }
@@ -391,7 +394,7 @@ fn preview_refuses_a_media_path_with_a_slash() {
     let json = preview(address);
     let generation = json["generation"].as_str().unwrap();
     for path in ["images/diamond.png", "../deck.toml", "../../media/images/diamond.png"] {
-        let (status, _, _) = request(address, "GET", &format!("/media/{generation}/{path}"), &address.to_string());
+        let (status, _, _) = request(address, "GET", &format!("/{generation}/media/{path}"), &address.to_string());
         assert_eq!(status, 404, "{path}");
     }
 }
@@ -405,9 +408,9 @@ fn preview_refuses_an_old_generation() {
     preview(address);
     let host = address.to_string();
     for path in [
-        format!("/card/{old}/0/front"),
-        format!("/media/{old}/diamond.png"),
-        "/card/0/0/front".into(),
+        format!("/{old}/cards/0-front.html"),
+        format!("/{old}/media/diamond.png"),
+        "/0/cards/0-front.html".into(),
     ] {
         let (status, _, _) = request(address, "GET", &path, &host);
         assert_eq!(status, 410, "{path}");
@@ -422,14 +425,14 @@ fn preview_sends_the_sounds_of_the_side() {
     let generation = json["generation"].as_str().unwrap();
     let row = first_row_of(&json, "element");
     let host = address.to_string();
-    let (_, _, back) = request(address, "GET", &format!("/card/{generation}/{row}/back"), &host);
+    let (_, _, back) = request(address, "GET", &format!("/{generation}/cards/{row}-back.html"), &host);
     let data = card_data(&back);
     assert!(data["html"].as_str().unwrap().contains("[anki:play:a:0]"), "{data}");
     let sounds = data["sounds"].as_array().unwrap();
     assert_eq!(sounds.len(), 1, "{data}");
     assert_eq!(sounds[0]["kind"], "file");
     assert!(sounds[0]["name"].as_str().unwrap().ends_with(".ogg"), "{data}");
-    let (_, _, front) = request(address, "GET", &format!("/card/{generation}/{row}/front"), &host);
+    let (_, _, front) = request(address, "GET", &format!("/{generation}/cards/{row}-front.html"), &host);
     assert_eq!(card_data(&front)["sounds"], serde_json::json!([]));
 }
 
@@ -446,12 +449,12 @@ fn preview_compares_the_typed_answer_on_the_back() {
     let row = rows(&json).iter().position(|row| row["entry"]["id"] == "halogens").unwrap();
     let host = address.to_string();
 
-    let (_, _, body) = request(address, "GET", &format!("/card/{generation}/{row}/front"), &host);
+    let (_, _, body) = request(address, "GET", &format!("/{generation}/cards/{row}-front.html"), &host);
     let html = card_data(&body)["html"].as_str().unwrap().to_string();
     assert!(html.contains("<input type=text id=typeans onkeypress=\"_typeAnsPress();\""), "{html}");
     assert!(!html.contains("[[type:"), "{html}");
 
-    let path = format!("/card/{generation}/{row}/back?typed=forms%20sa%C3%BCts");
+    let path = format!("/{generation}/cards/{row}-back.html?typed=forms%20sa%C3%BCts");
     let (status, _, body) = request(address, "GET", &path, &host);
     assert_eq!(status, 200, "{body}");
     let html = card_data(&body)["html"].as_str().unwrap().to_string();
@@ -459,7 +462,7 @@ fn preview_compares_the_typed_answer_on_the_back() {
     assert!(html.contains("typeGood") && html.contains("typeBad"), "{html}");
     assert!(!html.contains("[[type:") && !html.contains("<input"), "{html}");
 
-    let (_, _, body) = request(address, "GET", &format!("/card/{generation}/{row}/back"), &host);
+    let (_, _, body) = request(address, "GET", &format!("/{generation}/cards/{row}-back.html"), &host);
     let html = card_data(&body)["html"].as_str().unwrap().to_string();
     assert!(html.contains("<code id=typeans>forms salts</code>"), "{html}");
 }

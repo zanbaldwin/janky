@@ -160,10 +160,11 @@ fn html_document(
         })
         .collect();
     let body_class = preview::body_class(card.row.ord, request.night, request.platform);
-    let mut data = preview::card_json(&card.row.css, html, sounds, &body_class, side);
+    let mut data = preview::card_json(&card.row.css, html, sounds, card.row.ord, side);
+    data["bodyclass"] = json!(body_class);
     data["media"] = json!(urls);
     data["mathjax"] = json!(false);
-    preview::file_document(&data, &body_class)
+    Some(preview::card_document(&data, &body_class, None))
 }
 
 /// The identifiers of all cards, in the order of the preview table, or of all sample cards.

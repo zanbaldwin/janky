@@ -3,7 +3,7 @@
 //! The server listens on `127.0.0.1` only. It refuses a request whose `Host` header is not that address and port, so
 //! that a web page cannot reach the server through DNS rebinding. All routes are `GET`.
 //!
-//! Each `GET /api/preview` runs the pipeline again on the current files: [`check`], `deck.lock`,
+//! Each `GET /preview.json` runs the pipeline again on the current files: [`check`], `deck.lock`,
 //! [`package::package_with`] on the lock file in memory, and [`janky_anki::render`]. It does not read the media
 //! files, so a large media directory does not slow down a page load. The preview writes no files, and generators
 //! never run. Each note type that no entry uses gets one sample note, which rslib fills with
@@ -13,13 +13,16 @@
 //! media files of the last run that made a package. If the project, the package or the render fails, the response
 //! has the new diagnostics, the old rows, and `"stale": true`, so that the author still sees the last good cards.
 //!
-//! `/card/{generation}/{row}/{side}` is the document of one card side for the iframe of the page. Like Anki's
-//! reviewer, the `card` entry of the UI build puts the card HTML into `#qa`, runs its scripts, and runs the
-//! `onUpdateHook` and `onShownHook` callbacks. `/media/{generation}/{name}` serves a media file of the snapshot by its
-//! Anki name. A URL never becomes a file path. A request for an older generation gets `410 Gone`.
+//! Every URL is also a file path, so that the same site can be static files. `/{generation}/cards/{row}-{side}.html`
+//! is the document of one card side for the iframe of the page. Like Anki's reviewer, the `card` entry of the UI
+//! build, inline in the document, puts the card HTML into `#qa`, runs its scripts, and runs the `onUpdateHook` and
+//! `onShownHook` callbacks. It takes the night and platform classes from the query of its URL. Only `typed` on the
+//! back needs the server. `/{generation}/media/{name}` serves a media file of the snapshot by its Anki name. A URL
+//! never becomes a file path. A request for an older generation gets `410 Gone`. All URLs between the files are
+//! relative.
 //!
-//! The iframe has an opaque origin, so its module scripts and fonts need `Access-Control-Allow-Origin`. Another web
-//! page can send requests to `127.0.0.1` too, but it cannot read `/api/preview`, so it cannot know the random
+//! The iframe has an opaque origin, so its fonts and the MathJax files need `Access-Control-Allow-Origin`. Another web
+//! page can send requests to `127.0.0.1` too, but it cannot read `/preview.json`, so it cannot know the random
 //! generation in the media URLs. The card document and the media files also get a `sandbox` policy, so that they
 //! never run in the origin of the page, also when the user opens them directly.
 //!
@@ -56,6 +59,22 @@ static ASSETS: &[(&str, &[u8])] = include!(concat!(env!("OUT_DIR"), "/assets.rs"
 /// The Vite manifest of the UI build. It is empty if the UI is not built.
 static MANIFEST: LazyLock<Manifest> = LazyLock::new(|| {
     include_str!(concat!(env!("OUT_DIR"), "/vite-manifest.json")).parse().expect("the Vite manifest to be valid")
+});
+
+/// The CSS and the JS of the `card` entry, for the card documents. Both are empty if the UI is not built.
+///
+/// `build.rs` makes sure that the `card` entry is one JS file, and that its JS and CSS can be inline.
+static SHIM: LazyLock<(String, String)> = LazyLock::new(|| {
+    let Some(entry) = MANIFEST.entry("card") else {
+        return (String::new(), String::new());
+    };
+    let bytes = |url: String| {
+        let path = url.trim_start_matches('/').to_string();
+        ASSETS.iter().find(|(asset, _)| *asset == path).map(|(_, bytes)| String::from_utf8_lossy(bytes).into_owned())
+    };
+    let script = entry.script.and_then(|url| bytes(url.to_string())).unwrap_or_default();
+    let styles: Vec<String> = entry.stylesheets.iter().filter_map(|url| bytes(url.to_string())).collect();
+    (styles.join("\n"), script)
 });
 
 const NOT_BUILT: &str = "<!doctype html><meta charset=\"utf-8\"><title>janky preview</title>\
@@ -146,8 +165,6 @@ pub(crate) struct RowEntry {
 
 #[derive(Deserialize)]
 struct CardQuery {
-    night: Option<String>,
-    platform: Option<String>,
     /// The typed answer, for the back of a card with `{{type:Field}}`.
     typed: Option<String>,
 }
@@ -184,9 +201,9 @@ impl Server {
         let app = Router::new()
             .route("/", get(index))
             .route("/assets/{*path}", get(asset))
-            .route("/api/preview", get(api))
-            .route("/card/{generation}/{row}/{side}", get(card))
-            .route("/media/{generation}/{name}", get(media))
+            .route("/preview.json", get(api))
+            .route("/{generation}/cards/{file}", get(card))
+            .route("/{generation}/media/{name}", get(media))
             .layer(middleware::from_fn_with_state(shared.clone(), host))
             .with_state(shared);
         let runtime =
@@ -265,26 +282,19 @@ async fn api(State(shared): State<Arc<Shared>>) -> Response {
 
 async fn card(
     State(shared): State<Arc<Shared>>,
-    extract::Path((generation, row, side)): extract::Path<(String, usize, String)>,
+    extract::Path((generation, file)): extract::Path<(String, String)>,
     extract::Query(query): extract::Query<CardQuery>,
 ) -> Response {
-    let question = match side.as_str() {
+    let Some((row, side)) = file.strip_suffix(".html").and_then(|name| name.rsplit_once('-')) else {
+        return (StatusCode::NOT_FOUND, "no such card document").into_response();
+    };
+    let Ok(row) = row.parse::<usize>() else {
+        return (StatusCode::NOT_FOUND, "no such row").into_response();
+    };
+    let question = match side {
         "front" => true,
         "back" => false,
         _ => return (StatusCode::NOT_FOUND, "the side must be `front` or `back`").into_response(),
-    };
-    let night = match query.night.as_deref() {
-        None | Some("0") => false,
-        Some("1") => true,
-        Some(_) => return (StatusCode::BAD_REQUEST, "`night` must be `0` or `1`").into_response(),
-    };
-    let platform = match query.platform.as_deref() {
-        None | Some("desktop") => Platform::Desktop,
-        Some("android") => Platform::Android,
-        Some("iphone") => Platform::Iphone,
-        Some(_) => {
-            return (StatusCode::BAD_REQUEST, "`platform` must be `desktop`, `android` or `iphone`").into_response();
-        },
     };
     let body = {
         let snapshot = shared.snapshot.lock().unwrap_or_else(PoisonError::into_inner);
@@ -297,16 +307,15 @@ async fn card(
         let Some(rendered) = &card.rendered else {
             return (StatusCode::NOT_FOUND, "the card did not render").into_response();
         };
-        let body_class = body_class(card.ord, night, platform);
         if question {
-            document(&generation, &card.css, &rendered.question.html, &rendered.question.sounds, &body_class, &side)
+            document(card, &rendered.question.html, &rendered.question.sounds, side)
         } else {
             let typed = query.typed.as_deref().unwrap_or_default();
             let html = match janky_anki::compare_typed(&rendered.answer.html, rendered.type_answer.as_ref(), typed) {
                 Ok(html) => html,
                 Err(error) => return (StatusCode::INTERNAL_SERVER_ERROR, error.0).into_response(),
             };
-            document(&generation, &card.css, &html, &rendered.answer.sounds, &body_class, &side)
+            document(card, &html, &rendered.answer.sounds, side)
         }
     };
     (
@@ -321,23 +330,33 @@ async fn card(
         .into_response()
 }
 
-/// The card document. The card data is JSON in a `<script>` element, with each `<` escaped, so that card HTML cannot
-/// end that element. `body_class` and `side` are fixed strings, and `generation` is hex.
-fn document(generation: &str, css: &str, html: &str, sounds: &[Sound], body_class: &str, side: &str) -> String {
-    let data = card_data(&card_json(css, html, sounds, body_class, side));
-    let tags = MANIFEST.entry("card").map(|entry| entry.to_html()).unwrap_or_default();
+/// The document of one card side, below `{generation}/cards/`. The shim takes the night and platform classes from
+/// the query of the URL.
+fn document(card: &Card, html: &str, sounds: &[Sound], side: &str) -> String {
+    let data = card_json(&card.css, html, sounds, card.ord, side);
+    card_document(&data, &format!("card card{}", card.ord + 1), Some("../media/"))
+}
+
+/// A card document with the CSS and the JS of the shim inline, so that it needs no CORS header. The card data is JSON
+/// in a `<script>` element, with each `<` escaped, so that card HTML cannot end that element. `body_class` and `base`
+/// are fixed strings. Without `base`, the card data must map the media names to URLs.
+pub(crate) fn card_document(data: &Value, body_class: &str, base: Option<&str>) -> String {
+    let (styles, script) = &*SHIM;
+    let base = base.map(|base| format!("<base href=\"{base}\">\n")).unwrap_or_default();
+    let data = card_data(data);
     format!(
         "<!doctype html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n\
-         <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n\
-         <base href=\"/media/{generation}/\">\n{tags}</head>\n<body class=\"{body_class}\">\n<div id=\"qa\"></div>\n\
-         <script type=\"application/json\" id=\"janky-card\">{data}</script>\n</body>\n</html>\n"
+         <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n{base}<style>\n{styles}\n</style>\n\
+         </head>\n<body class=\"{body_class}\">\n<div id=\"qa\"></div>\n\
+         <script type=\"application/json\" id=\"janky-card\">{data}</script>\n<script type=\"module\">\n{script}\n</script>\n\
+         </body>\n</html>\n"
     )
 }
 
 /// The card data of the shim, before [`card_data`].
-pub(crate) fn card_json(css: &str, html: &str, sounds: &[Sound], body_class: &str, side: &str) -> Value {
+pub(crate) fn card_json(css: &str, html: &str, sounds: &[Sound], ord: usize, side: &str) -> Value {
     let html = format!("<style>{css}</style>{html}");
-    json!({ "html": html, "bodyclass": body_class, "side": side, "sounds": sounds_json(sounds) })
+    json!({ "html": html, "ord": ord, "side": side, "sounds": sounds_json(sounds) })
 }
 
 /// The card data as the text of a `<script type="application/json">` element. Each `<` is escaped, so that card
@@ -355,7 +374,7 @@ pub enum Platform {
     Iphone,
 }
 
-/// The classes of the card body, as Anki's reviewer sets them.
+/// The classes of the card body, as Anki's reviewer sets them. The shim of the preview makes the same classes.
 pub(crate) fn body_class(ord: usize, night: bool, platform: Platform) -> String {
     let platform = match platform {
         Platform::Desktop => "isLin",
@@ -369,29 +388,6 @@ pub(crate) fn body_class(ord: usize, night: bool, platform: Platform) -> String 
 /// Whether this janky has the UI build, which the card documents need.
 pub fn ui_built() -> bool {
     MANIFEST.entry("card").is_some()
-}
-
-/// A card document that needs no server, for `janky show --format html`. The CSS and the JS of the `card` entry are
-/// in the document, and `media` maps each media name to a `file://` URL. It returns `None` without the UI build.
-///
-/// `build.rs` makes sure that the `card` entry is one JS file, and that its JS and CSS can be inline.
-pub(crate) fn file_document(data: &Value, body_class: &str) -> Option<String> {
-    let entry = MANIFEST.entry("card")?;
-    let bytes = |url: String| {
-        let path = url.trim_start_matches('/').to_string();
-        ASSETS.iter().find(|(asset, _)| *asset == path).map(|(_, bytes)| String::from_utf8_lossy(bytes).into_owned())
-    };
-    let script = bytes(entry.script?.to_string())?;
-    let styles: Vec<String> = entry.stylesheets.iter().filter_map(|url| bytes(url.to_string())).collect();
-    let styles = styles.join("\n");
-    let data = card_data(data);
-    Some(format!(
-        "<!doctype html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n\
-         <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<style>\n{styles}\n</style>\n</head>\n\
-         <body class=\"{body_class}\">\n<div id=\"qa\"></div>\n\
-         <script type=\"application/json\" id=\"janky-card\">{data}</script>\n<script type=\"module\">\n{script}\n</script>\n\
-         </body>\n</html>\n"
-    ))
 }
 
 async fn media(
@@ -478,7 +474,7 @@ fn content_type(path: &str) -> &'static str {
 }
 
 impl Shared {
-    /// Runs the pipeline and returns the JSON body of `/api/preview`.
+    /// Runs the pipeline and returns the JSON body of `/preview.json`.
     fn refresh(&self) -> String {
         let _pipeline = self.pipeline.lock().unwrap_or_else(PoisonError::into_inner);
         let mut diagnostics = Diagnostics::default();
@@ -633,7 +629,7 @@ pub(crate) fn render(loaded: &mut Loaded, selection: &Selection) -> std::result:
     Ok(rows)
 }
 
-/// The JSON of one row of `/api/preview`.
+/// The JSON of one row of `/preview.json`.
 fn row_json(index: usize, row: &Row) -> Value {
     json!({
         "row": index,
