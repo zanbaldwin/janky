@@ -31,7 +31,7 @@ const SUN =
 const MOON = "M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z";
 
 export function CardView({ generation, exported, row, view, onView, typed, onTyped }: Props) {
-  const title = [row.notetype.name, row.entry?.id ?? "sample", row.card.name].join(" · ");
+  const title = `${row.entry?.id ?? "sample"} (${row.notetype.name}) / ${row.card.name}`;
   const frame = useRef<HTMLIFrameElement>(null);
   const other = view.side === "front" ? "back" : "front";
 
@@ -69,7 +69,12 @@ export function CardView({ generation, exported, row, view, onView, typed, onTyp
   return (
     <section className="view">
       <header>
-        <h2>{title}</h2>
+        <h2 title={title}>
+          {row.entry === null ? <span className="crumb">sample</span> : <code className="entry">{row.entry.id}</code>}{" "}
+          <span className="crumb">({row.notetype.name})</span>
+          <span className="sep" aria-hidden="true">/</span>
+          <span className="crumb">{row.card.name}</span>
+        </h2>
         <div
           className="pill sides"
           role="group"

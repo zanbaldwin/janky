@@ -173,6 +173,24 @@ table.cards {
   white-space: nowrap;
 }
 
+.view h2 .crumb {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.view h2 .sep {
+  margin: 0 6px;
+  color: var(--muted);
+  font-weight: 400;
+  opacity: 0.5;
+}
+
+.view h2 .entry {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 14px;
+  font-weight: 600;
+}
+
 .pill {
   display: flex;
   gap: 6px;
