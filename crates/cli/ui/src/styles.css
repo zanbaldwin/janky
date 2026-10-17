@@ -169,24 +169,33 @@ table.cards {
   white-space: nowrap;
 }
 
-.sides {
+.pill {
   display: flex;
   gap: 6px;
   align-items: center;
-  padding: 3px 3px 3px 10px;
+  padding: 3px;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--surface);
 }
 
-.flip {
+.sides {
+  padding-left: 10px;
+}
+
+.icon {
+  flex-shrink: 0;
   width: 14px;
   height: 14px;
   fill: none;
-  stroke: var(--muted);
+  stroke: currentColor;
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 2;
+}
+
+.sides > .icon {
+  color: var(--muted);
 }
 
 .segments {
@@ -204,12 +213,16 @@ table.cards {
   transition: transform 150ms ease;
 }
 
-.sides[data-side="back"] .segments::before {
+.segments.end::before {
   transform: translateX(100%);
 }
 
-.sides button {
+.pill button {
+  display: flex;
   position: relative;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
   min-width: 72px;
   padding: 5px 16px;
   border: 0;
@@ -220,13 +233,38 @@ table.cards {
   cursor: pointer;
 }
 
-.sides button:hover {
+.pill button:hover,
+.night:hover {
   color: var(--text);
 }
 
-.sides button[aria-pressed="true"] {
+.pill button[aria-pressed="true"] {
   color: var(--accent);
   font-weight: 600;
+}
+
+.night {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.night .icon {
+  width: 16px;
+  height: 16px;
+}
+
+.night[aria-pressed="true"] {
+  background: var(--selected);
+  color: var(--accent);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -239,17 +277,8 @@ table.cards {
   display: flex;
   flex-shrink: 0;
   justify-self: end;
-  gap: 12px;
+  gap: 8px;
   align-items: center;
-}
-
-.controls select {
-  padding: 3px 4px;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  background: var(--surface);
-  color: inherit;
-  font: inherit;
 }
 
 .frame {
