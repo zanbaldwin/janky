@@ -109,7 +109,13 @@ pub fn export(
     })();
     let written = written.and_then(|()| swap(&staging, dir));
     match written {
-        Ok(()) => {
+        Ok(leftover) => {
+            if let Some(message) = leftover {
+                diagnostics.push(
+                    Diagnostic::warning("preview::export-write", format!("the export is in place, but {message}"))
+                        .with_help("remove that directory yourself"),
+                );
+            }
             let media = match media.len() {
                 1 => "1 media file".to_string(),
                 count => format!("{count} media files"),
@@ -249,10 +255,11 @@ fn write(root: &Path, path: &str, bytes: &[u8]) -> Result<(), String> {
     file.write_all(bytes).map_err(|error| format!("cannot write `{}`: {error}", target.display()))
 }
 
-/// Puts `staging` at `dir`. An earlier export is renamed away first, and is deleted after the swap.
-fn swap(staging: &Path, dir: &Path) -> Result<(), String> {
+/// Puts `staging` at `dir`. An earlier export is renamed away first, and is deleted after the swap. If janky cannot
+/// delete it, the new export stays in place, and the result is the message about the earlier export.
+fn swap(staging: &Path, dir: &Path) -> Result<Option<String>, String> {
     match target(dir)? {
-        Target::Absent | Target::Empty => fs::rename(staging, dir).map_err(|error| error.to_string()),
+        Target::Absent | Target::Empty => fs::rename(staging, dir).map(|()| None).map_err(|error| error.to_string()),
         Target::Previous => {
             let old = sibling(dir, "old")?;
             fs::rename(dir, &old).map_err(|error| error.to_string())?;
@@ -260,7 +267,7 @@ fn swap(staging: &Path, dir: &Path) -> Result<(), String> {
                 let _ = fs::rename(&old, dir);
                 return Err(error.to_string());
             }
-            fs::remove_dir_all(&old).map_err(|error| format!("cannot remove `{}`: {error}", old.display()))
+            Ok(fs::remove_dir_all(&old).err().map(|error| format!("cannot remove `{}`: {error}", old.display())))
         },
     }
 }

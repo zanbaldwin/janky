@@ -723,3 +723,30 @@ fn export_has_no_package_when_deck_lock_is_missing_or_out_of_date() {
     assert!(!missing.join("deck.apkg").exists());
     assert!(!dir.join("deck.lock").exists(), "the export does not write deck.lock");
 }
+
+#[test]
+fn export_keeps_the_new_export_when_it_cannot_delete_the_earlier_one() {
+    use std::os::unix::fs::PermissionsExt;
+    if !janky_cli::preview::ui_built() {
+        return;
+    }
+    let (work, dir) = common::example();
+    let out = work.path().join("site");
+    export(&dir, &out);
+    let locked = out.join("locked");
+    std::fs::create_dir(&locked).unwrap();
+    std::fs::write(locked.join("file"), "x").unwrap();
+    std::fs::set_permissions(&locked, std::fs::Permissions::from_mode(0o555)).unwrap();
+    if std::fs::remove_file(locked.join("file")).is_ok() {
+        return;
+    }
+    let (diagnostics, messages) = export(&dir, &out);
+    assert!(export_codes(&diagnostics).is_empty(), "{:?}", export_codes(&diagnostics));
+    assert!(export_warnings(&diagnostics).contains(&"preview::export-write".to_string()));
+    assert!(messages.iter().any(|message| message.starts_with("wrote ")), "{messages:?}");
+    assert!(out.join("preview.json").is_file() && !out.join("locked").exists());
+    let old: Vec<String> = siblings(&out).into_iter().filter(|name| name.starts_with("site.old-")).collect();
+    assert_eq!(old.len(), 1, "{:?}", siblings(&out));
+    let old = work.path().join(&old[0]);
+    std::fs::set_permissions(old.join("locked"), std::fs::Permissions::from_mode(0o755)).unwrap();
+}

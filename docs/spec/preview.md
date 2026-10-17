@@ -401,7 +401,8 @@ The preview matches the security of the rest of janky:
    files, except `deck.apkg`, which Anki writes differently each time.
 6. `preview.json` has `"exported": true` and no diagnostics. The marker is the last file.
 7. An absent or empty `DIR` is replaced with a rename. An earlier export is renamed to `<DIR>.old-<hex>`, the new
-   directory is renamed to `DIR`, then the old one is deleted. After an error, janky deletes the staging directory.
+   directory is renamed to `DIR`, then the old one is deleted. If janky cannot delete it, the new export stays, and
+   janky gives the warning `preview::export-write`. After an error, janky deletes the staging directory.
 
 The export is the only part of janky that writes outside the project. It never writes through a link, because it
 writes only into the directory that it made.
@@ -418,7 +419,8 @@ The preview adds these codes. `docs/src/reference/codes.md` lists them:
 - `preview::render`: Anki rejects a card template. The response is stale.
 - `preview::no-ui`: `--export` in a janky without the UI build.
 - `preview::export-target`: the export directory is not absent, empty, or an earlier export.
-- `preview::export-write`: the export cannot write its files.
+- `preview::export-write`: the export cannot write its files. A warning if only the earlier export cannot be
+  deleted.
 - `preview::export-lock` (warning): the export has no `deck.apkg`.
 
 `tests/data/errors/` has no fixtures for these codes, because those fixtures run only `cli::check`. The server tests
