@@ -176,8 +176,8 @@ Open the address in your browser. The page has two parts:
   package (see [The order of new cards](../deck/decks.md#the-order-of-new-cards)). Type in the
   filter field to find a card. Select **Show empty cards** to show the cards with an empty front.
 - On the right, the page shows the selected card. Use **Front** and **Back** to turn the card. Use
-  **Night mode** to see the night colours, and the platform menu to see the card at the width of a
-  phone.
+  **Night mode** to switch between the night and the day colours. Night mode is on when you first
+  open the page. Use the platform menu to see the card at the width of a phone.
 
 To change the widths of the two parts, drag the line between them. Your browser keeps the width.
 

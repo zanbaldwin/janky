@@ -15,7 +15,7 @@ export function parseHash(hash: string): Selection {
   return {
     row: Number.isInteger(row) && row >= 0 ? row : 0,
     side: params.get("side") === "back" ? "back" : "front",
-    night: params.get("night") === "1",
+    night: params.get("night") !== "0",
     platform: platform ?? "desktop",
   };
 }

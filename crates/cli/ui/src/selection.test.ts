@@ -16,17 +16,21 @@ function row(row: number, entry: string | null, card = "Recognition"): Row {
 }
 
 describe("parseHash", () => {
-  const start = { row: 0, side: "front", night: false, platform: "desktop" } as const;
+  const start = { row: 0, side: "front", night: true, platform: "desktop" } as const;
 
   it("reads the selection that formatHash writes", () => {
     const selection = { row: 12, side: "back", night: true, platform: "android" } as const;
     expect(parseHash(formatHash(selection))).toEqual(selection);
   });
 
-  it("falls back to the first row, the front, day mode and desktop for a missing or bad hash", () => {
+  it("falls back to the first row, the front, night mode and desktop for a missing or bad hash", () => {
     expect(parseHash("")).toEqual(start);
     expect(parseHash("#row=-1&side=sideways&night=yes&platform=symbian")).toEqual(start);
     expect(parseHash("#row=abc")).toEqual(start);
+  });
+
+  it("turns night mode off only for night=0", () => {
+    expect(parseHash("#night=0").night).toBe(false);
   });
 });
 

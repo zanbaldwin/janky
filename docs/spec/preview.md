@@ -316,8 +316,8 @@ React 19 and TypeScript, built with Vite. The source is in `crates/cli/ui/`.
   entry index, for example `content/words.yaml #0`. A filter field above the table filters the
   rows by text. A "Show empty cards" checkbox below the filter field hides the rows with `empty: true`. It is off
   by default, and the page does not keep its value.
-- On the right: the iframe, with buttons for front and back, a night mode checkbox, and a platform menu. Android
-  shows the card 412 pixels wide, and iPhone 390 pixels wide.
+- On the right: the iframe, with buttons for front and back, a night mode checkbox (on by default), and a platform
+  menu. Android shows the card 412 pixels wide, and iPhone 390 pixels wide.
 - Above the table: the diagnostics, as errors and warnings with their file, line and column. A banner shows when
   the rows are stale.
 - The row, the side, night mode and the platform are in the URL hash, so Ctrl+R keeps them.
