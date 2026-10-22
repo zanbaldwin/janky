@@ -539,3 +539,19 @@ fn overwrite_writes_the_project_to_a_note_edited_in_anki() {
     assert_eq!(fields, "one\u{1f}back");
     assert!(diff(&mut col, &base(), &Apply::default()).unwrap().is_empty());
 }
+
+#[test]
+fn a_note_saved_by_the_anki_editor_is_unchanged() {
+    let (_work, mut col) = copy();
+    let mut quoted = base();
+    quoted.notes[0].fields[0] = "it&#39;s &quot;one&quot;".into();
+    apply(&mut col, &quoted, &Apply::default()).unwrap();
+    let id = query(&col, "select id from notes where guid = 'n1'");
+    let mut edited = col.storage.get_note(anki::notes::NoteId(id)).unwrap().unwrap();
+    edited.set_field(0, "it's \"one\"").unwrap();
+    col.update_note(&mut edited).unwrap();
+
+    let request = Apply { overwrite: true, ..Default::default() };
+    assert!(diff(&mut col, &quoted, &Apply::default()).unwrap().is_empty());
+    assert!(diff(&mut col, &quoted, &request).unwrap().is_empty());
+}

@@ -127,7 +127,7 @@ pub fn apply(col: &mut Collection, package: &Package, request: &Apply) -> Result
         }
         let have_tags: HashSet<&str> = current.tags.iter().map(String::as_str).collect();
         let want_tags: HashSet<&str> = note.tags.iter().map(String::as_str).collect();
-        if current.fields() == &note.fields && have_tags == want_tags {
+        if crate::diff::same_fields(&current.fields().join("\u{1f}"), &note.fields) && have_tags == want_tags {
             continue;
         }
         for (index, text) in note.fields.iter().enumerate() {

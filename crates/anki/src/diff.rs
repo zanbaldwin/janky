@@ -66,6 +66,14 @@ impl Diff {
     }
 }
 
+/// Whether `have`, the fields of a note in the collection, hold the package's `want`. Anki's
+/// editor saves `&#39;` and `&quot;` as `'` and `"`, so a note opened there stays the same.
+pub(crate) fn same_fields(have: &str, want: &[String]) -> bool {
+    let want = want.join("\u{1f}");
+    let plain = |text: &str| text.replace("&#39;", "'").replace("&quot;", "\"");
+    *have == want || plain(have) == plain(&want)
+}
+
 /// Compares `package` with `col`. `request` is what the caller passes to `apply`: the known deck
 /// ids and the notes whose deck changed. It gives the same errors as `apply` for a package that
 /// `apply` refuses. [`Diff::notes_removed`] does not depend on
@@ -188,7 +196,7 @@ pub fn diff(col: &mut Collection, package: &Package, request: &Apply) -> Result<
         }
         let have_tags: HashSet<&str> = tags.split_whitespace().collect();
         let want_tags: HashSet<&str> = note.tags.iter().map(String::as_str).collect();
-        if *fields == note.fields.join("\u{1f}") && have_tags == want_tags {
+        if same_fields(fields, &note.fields) && have_tags == want_tags {
             diff.notes_unchanged += 1;
         } else if note.modified > *modified || request.overwrite {
             diff.notes_changed.push(note.guid.clone());
