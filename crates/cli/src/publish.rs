@@ -53,6 +53,7 @@ pub struct Flags {
     pub dry_run: bool,
     pub allow_full_sync: bool,
     pub delete_removed: bool,
+    pub overwrite_anki_edits: bool,
 }
 
 /// What the last publish recorded in `state.json`.
@@ -170,6 +171,7 @@ pub fn publish(
             .map(|note| note.guid.clone())
             .collect(),
         delete: Vec::new(),
+        overwrite: flags.overwrite_anki_edits,
     };
     let diff = match janky_anki::diff(&mut copy, &prepared.package, &request) {
         Ok(diff) => diff,

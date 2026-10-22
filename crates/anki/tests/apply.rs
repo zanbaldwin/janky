@@ -520,3 +520,22 @@ fn a_field_added_between_others_takes_its_place() {
     let after = diff(&mut col, &changed, &Apply::default()).unwrap();
     assert!(after.is_empty(), "{after:?}");
 }
+
+#[test]
+fn overwrite_writes_the_project_to_a_note_edited_in_anki() {
+    let (_work, mut col) = copy();
+    first(&mut col);
+    let id = query(&col, "select id from notes where guid = 'n1'");
+    let mut edited = col.storage.get_note(anki::notes::NoteId(id)).unwrap().unwrap();
+    edited.set_field(0, "edited in Anki").unwrap();
+    col.update_note(&mut edited).unwrap();
+
+    let request = Apply { overwrite: true, ..Default::default() };
+    let found = diff(&mut col, &base(), &request).unwrap();
+    assert_eq!((found.notes_kept.len(), found.notes_changed, found.notes_unchanged), (0, vec!["n1".to_string()], 1));
+    apply(&mut col, &base(), &request).unwrap();
+    let fields: String =
+        col.storage.db().query_row("select flds from notes where guid = 'n1'", [], |row| row.get(0)).unwrap();
+    assert_eq!(fields, "one\u{1f}back");
+    assert!(diff(&mut col, &base(), &Apply::default()).unwrap().is_empty());
+}

@@ -45,7 +45,7 @@ pub struct Diff {
     /// GUIDs of notes whose fields or tags change.
     pub notes_changed: Vec<String>,
     /// GUIDs of notes that differ, but the collection's note is newer, because it was edited in
-    /// Anki. "Update notes if newer" keeps it.
+    /// Anki. "Update notes if newer" keeps it, unless [`Apply::overwrite`].
     pub notes_kept: Vec<String>,
     /// The number of notes that stay as they are.
     pub notes_unchanged: usize,
@@ -190,7 +190,7 @@ pub fn diff(col: &mut Collection, package: &Package, request: &Apply) -> Result<
         let want_tags: HashSet<&str> = note.tags.iter().map(String::as_str).collect();
         if *fields == note.fields.join("\u{1f}") && have_tags == want_tags {
             diff.notes_unchanged += 1;
-        } else if note.modified > *modified {
+        } else if note.modified > *modified || request.overwrite {
             diff.notes_changed.push(note.guid.clone());
         } else {
             diff.notes_kept.push(note.guid.clone());

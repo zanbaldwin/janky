@@ -169,6 +169,11 @@ pub enum Command {
         /// Delete the notes of entries that the project removed, with their cards.
         #[arg(long)]
         delete_removed: bool,
+        /// Write the project to the notes that were edited in Anki, instead of keeping them.
+        ///
+        /// Their review history and scheduling stay.
+        #[arg(long)]
+        overwrite_anki_edits: bool,
     },
     /// Show every card of the project in the browser, and write nothing, unless --export.
     ///
@@ -353,12 +358,14 @@ pub fn run(cli: &Cli) -> ExitCode {
             dry_run,
             allow_full_sync,
             delete_removed,
+            overwrite_anki_edits,
         } => {
             let flags = crate::publish::Flags {
                 yes: *yes,
                 dry_run: *dry_run,
                 allow_full_sync: *allow_full_sync,
                 delete_removed: *delete_removed,
+                overwrite_anki_edits: *overwrite_anki_edits,
             };
             published = crate::publish::publish(cli, flags, options, &mut diagnostics, &mut messages, &mut log);
         },

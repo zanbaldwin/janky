@@ -281,7 +281,7 @@ fn the_publish_plan_names_every_change() {
          + note ar\n\
          + note c\n\
          ~ note cu\n\
-         = note ne: edited in Anki, so it stays as it is\n\
+         = note ne: edited in Anki, so it stays as it is. `--overwrite-anki-edits` overwrites it\n\
          - note gone: stays in Anki. `--delete-removed` deletes it\n\
          = note guid-anki: made in Anki with a janky note type. janky never deletes it\n\
          ~ 2 cards move to the decks of their notes\n"

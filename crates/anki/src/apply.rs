@@ -34,6 +34,8 @@ pub struct Apply {
     pub moved: Vec<String>,
     /// The GUIDs of the notes to delete. Their cards go with them. Anki keeps their review log.
     pub delete: Vec<String>,
+    /// Write the project's fields and tags to the notes that were edited in Anki too.
+    pub overwrite: bool,
 }
 
 /// What [`apply`] changed.
@@ -114,7 +116,7 @@ pub fn apply(col: &mut Collection, package: &Package, request: &Apply) -> Result
     // before the import, as in the diff.
     for note in &package.notes {
         let Some((id, modified)) = before.get(&note.guid) else { continue };
-        if note.modified <= *modified {
+        if note.modified <= *modified && !request.overwrite {
             continue;
         }
         let Some(mut current) = col.storage.get_note(*id).map_err(fail)? else {

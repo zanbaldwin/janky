@@ -122,7 +122,7 @@ Then each change has one line. Notes show with their entry ids.
 | `~ deck <name>: sets the preset back` | You gave the deck a different preset in Anki. janky sets the preset of `deck.toml` again. |
 | `+ note <id>` | A new note. |
 | `~ note <id>` | The fields or tags of the note change. The note keeps its cards and review history. |
-| `= note <id>: edited in Anki, so it stays as it is` | You edited the note in Anki after the last change in your files. |
+| ``= note <id>: edited in Anki, so it stays as it is. `--overwrite-anki-edits` overwrites it`` | You edited the note in Anki after the last change in your files. |
 | ``- note <id>: stays in Anki. `--delete-removed` deletes it`` | You removed the entry. The note stays. |
 | `- note <id>: deleted, with its cards` | You removed the entry, and used `--delete-removed`. |
 | `= note <GUID>: made in Anki with a janky note type. janky never deletes it` | You added this note in Anki. janky does not know it. |

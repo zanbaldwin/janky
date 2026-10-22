@@ -518,11 +518,9 @@ pub fn publish_text(diff: &Diff, ids: &HashMap<String, String>, delete_removed: 
     lines.extend(diff.decks_preset.iter().map(|name| format!("~ deck {name}: sets the preset back")));
     lines.extend(sorted(&diff.notes_added).into_iter().map(|name| format!("+ note {name}")));
     lines.extend(sorted(&diff.notes_changed).into_iter().map(|name| format!("~ note {name}")));
-    lines.extend(
-        sorted(&diff.notes_kept)
-            .into_iter()
-            .map(|name| format!("= note {name}: edited in Anki, so it stays as it is")),
-    );
+    lines.extend(sorted(&diff.notes_kept).into_iter().map(|name| {
+        format!("= note {name}: edited in Anki, so it stays as it is. `--overwrite-anki-edits` overwrites it")
+    }));
     lines.extend(sorted(&removed).into_iter().map(|name| {
         if delete_removed {
             format!("- note {name}: deleted, with its cards")
