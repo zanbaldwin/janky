@@ -9,13 +9,14 @@
 //! in the package. [`Applied::decks`] maps one to the other, and the caller gives the map back
 //! in [`Apply::decks`] next time, so that a renamed deck is found.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use anki::collection::Collection;
 use anki::deckconfig::{DeckConfSchema11, DeckConfigId};
 use anki::decks::{DeckId, DeckKind};
 use anki::import_export::package::{ImportAnkiPackageOptions, UpdateCondition};
 use anki::notes::NoteId;
+use anki::notetype::NotetypeId;
 use anki::prelude::CardId;
 use anki::services::DeckConfigService;
 use anki_proto::generic::Json;
@@ -89,7 +90,50 @@ pub fn apply(col: &mut Collection, package: &Package, request: &Apply) -> Result
         with_scheduling: false,
         with_deck_configs: true,
     };
+    let before = note_times(col)?;
     col.import_apkg(&apkg, options).map_err(fail)?;
+
+    // "Merge note types" keeps the collection's order and puts a new field or card type last.
+    // The project's order wins, so that the next diff finds no schema change.
+    for notetype in &package.notetypes {
+        let Some(current) = col.get_notetype(NotetypeId(notetype.id)).map_err(fail)? else {
+            continue;
+        };
+        let mut wanted = (*current).clone();
+        let fields: Vec<i64> = notetype.fields.iter().map(|field| field.id).collect();
+        let cards: Vec<i64> = notetype.cards.iter().map(|card| card.id).collect();
+        let fields_moved = reorder(&mut wanted.fields, &fields, |field| field.config.id);
+        let cards_moved = reorder(&mut wanted.templates, &cards, |card| card.config.id);
+        if fields_moved || cards_moved {
+            col.update_notetype(&mut wanted, false).map_err(fail)?;
+        }
+    }
+
+    // A new field rewrites every note of its note type during the import, before the notes are
+    // compared, so "update notes if newer" keeps them all. "Newer" is decided from the times
+    // before the import, as in the diff.
+    for note in &package.notes {
+        let Some((id, modified)) = before.get(&note.guid) else { continue };
+        if note.modified <= *modified {
+            continue;
+        }
+        let Some(mut current) = col.storage.get_note(*id).map_err(fail)? else {
+            continue;
+        };
+        if current.notetype_id.0 != note.notetype {
+            continue;
+        }
+        let have_tags: HashSet<&str> = current.tags.iter().map(String::as_str).collect();
+        let want_tags: HashSet<&str> = note.tags.iter().map(String::as_str).collect();
+        if current.fields() == &note.fields && have_tags == want_tags {
+            continue;
+        }
+        for (index, text) in note.fields.iter().enumerate() {
+            current.set_field(index, text).map_err(fail)?;
+        }
+        current.tags = note.tags.clone();
+        col.update_note(&mut current).map_err(fail)?;
+    }
 
     for preset in &package.presets {
         let Some(current) = Collection::get_deck_config(col, DeckConfigId(preset.id), false).map_err(fail)? else {
@@ -163,6 +207,27 @@ pub fn apply(col: &mut Collection, package: &Package, request: &Apply) -> Result
     // which can be equal by chance. A time after the last sync makes the next push send them.
     col.storage.db().execute("update col set mod = max(mod, ls + 1)", []).map_err(fail)?;
     Ok(applied)
+}
+
+/// The id and modification time of each note in `col`, by GUID.
+fn note_times(col: &Collection) -> Result<HashMap<String, (NoteId, i64)>> {
+    let db = col.storage.db();
+    let mut statement = db.prepare("select guid, id, mod from notes").map_err(fail)?;
+    let rows = statement
+        .query_map([], |row| Ok((row.get::<_, String>(0)?, (NoteId(row.get(1)?), row.get(2)?))))
+        .map_err(fail)?;
+    rows.collect::<std::result::Result<_, _>>().map_err(fail)
+}
+
+/// Sorts `items` into the order of `wanted`, by id. Items that `wanted` does not have go last, in
+/// their order. Returns whether anything moved.
+fn reorder<T>(items: &mut [T], wanted: &[i64], id: impl Fn(&T) -> Option<i64>) -> bool {
+    let rank = |item: &T| id(item).and_then(|id| wanted.iter().position(|want| *want == id)).unwrap_or(wanted.len());
+    if items.is_sorted_by_key(rank) {
+        return false;
+    }
+    items.sort_by_key(rank);
+    true
 }
 
 /// The checks that stop [`apply`] before it changes anything: a rename to a name that another

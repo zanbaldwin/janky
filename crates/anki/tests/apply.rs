@@ -490,3 +490,33 @@ fn the_collection_is_newer_than_its_last_sync_after_an_apply() {
     let (modified, synced) = (query(&col, "select mod from col"), query(&col, "select ls from col"));
     assert!(modified > synced, "{modified} {synced}");
 }
+
+#[test]
+fn a_field_added_between_others_takes_its_place() {
+    let (_work, mut col) = copy();
+    first(&mut col);
+    let mut changed = base();
+    changed.notetypes[0].fields.insert(
+        1,
+        Field {
+            id: 13,
+            name: "Middle".into(),
+            description: String::new(),
+            collapsed: false,
+        },
+    );
+    for note in &mut changed.notes {
+        note.fields.insert(1, "middle".into());
+        note.modified = 2000;
+    }
+    apply(&mut col, &changed, &Apply::default()).unwrap();
+
+    let current = col.get_notetype(anki::notetype::NotetypeId(1001)).unwrap().unwrap();
+    let fields: Vec<Option<i64>> = current.fields.iter().map(|field| field.config.id).collect();
+    assert_eq!(fields, [Some(11), Some(13), Some(12)]);
+    let stored: String =
+        col.storage.db().query_row("select flds from notes where guid = 'n1'", [], |row| row.get(0)).unwrap();
+    assert_eq!(stored, "one\u{1f}middle\u{1f}back");
+    let after = diff(&mut col, &changed, &Apply::default()).unwrap();
+    assert!(after.is_empty(), "{after:?}");
+}
